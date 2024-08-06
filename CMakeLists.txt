@@ -1,0 +1,69 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(RtreeReop VERSION 1.0
+    LANGUAGES C CXX
+)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+add_subdirectory(RtreeRepo)
+# add_subdirectory(sqlite-amalgamation)
+
+if(MSVC)
+    # 使用MSVC编译器的优化选项
+    # add_compile_options(/O2)
+    # shenghang modify /O2, need be unhidden.
+    # include(mdl.mki)
+else()
+    # 使用GCC或Clang的优化选项
+    add_compile_options(-O3)
+    add_compile_options(-fPIC)
+endif()
+add_definitions(-DSQLITE_DQS=0)
+add_definitions(-DSQLITE_DEFAULT_MEMSTATUS=0)
+add_definitions(-DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1)
+add_definitions(-DSQLITE_LIKE_DOESNT_MATCH_BLOBS)
+add_definitions(-DSQLITE_MAX_EXPR_DEPTH=0)
+add_definitions(-DSQLITE_OMIT_DECLTYPE)
+add_definitions(-DSQLITE_OMIT_DEPRECATED)
+add_definitions(-DSQLITE_OMIT_PROGRESS_CALLBACK)
+add_definitions(-DSQLITE_OMIT_SHARED_CACHE)
+add_definitions(-DSQLITE_USE_ALLOCA)
+add_definitions(-DSQLITE_USE_URI)
+add_definitions(-DSQLITE_ENABLE_RTREE)
+# add_definitions(-DNDEBUG)
+if(NOT uppercase_CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RELEASE)
+elseif(uppercase_CMAKE_BUILD_TYPE MATCHES "DEBUG")
+  add_definitions(-DDEBUG)
+#   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address -fsanitize-recover=all -fsanitize=leak")
+endif()
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/RtreeRepo)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+message (STATUS "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
+message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
+add_executable(easyRTree easyRTree.cpp)
+
+set(BIN "easyRTree")
+
+set_target_properties(${BIN} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+# # set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL$<$<CONFIG:Debug>:DebugDLL>")
+# # find_library(SHLWAPI_LIBRARY shlwapi)
+# link_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party)
+# find_library(SHLWAPI_LIBRARY ShLwApi PATHS ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
+
+target_link_libraries(${BIN} RtreeRepo)
+add_definitions(-D__BENTLEYDLL_BUILD__=1)
+add_definitions(-DBENTLEY_WIN32=1)
+add_compile_definitions(BENTLEY_WIN32)
+add_definitions(-DBENTLEY_WINRT)
+add_compile_definitions(BENTLEY_WINRT)

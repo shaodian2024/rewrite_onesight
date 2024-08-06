@@ -1,0 +1,18 @@
+RtreeConstraint
+    sql_commands.push_back("CREATE VIRTUAL TABLE myRTree USING rtree(id, minX, maxX, minY, maxY);");
+    sql_commands.push_back("INSERT INTO myRTree VALUES (1, 1,   2,  1,  2);");
+    sql_commands.push_back("INSERT INTO myRTree VALUES (9,    1.8,   3,  1.8,  3);");
+    sql_commands.push_back("INSERT INTO myRTree VALUES (13,   -15, 15, 1.8, 2.2);");
+    sql_commands.push_back("SELECT id FROM myRTree WHERE id MATCH circle(0.0, 0.0, 100.0);");
+
+    std::vector<int> matching_ids;
+
+    for (const auto& sql : sql_commands) {
+      auto rc = sqlite3_exec(db, sql, NULL, 0, &error_message);
+      if (rc != SQLITE_OK) {
+          fprintf(stderr, "error command: %s\n", sql);
+          fprintf(stderr, "SQL error: %s\n", error_message);
+          sqlite3_free(error_message);
+          sqlite3_close(db);
+          return 1;
+      }
