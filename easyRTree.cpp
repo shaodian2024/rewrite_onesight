@@ -1,7 +1,7 @@
 #include <string>
 #include "RtreeRepo/sqlite3rtree.h"
 #include "extension.h"
-#include "sqlite3rtree.h"
+// #include "sqlite3rtree.h"
 #include <iostream>
 #include <vector>
 
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
   std::vector<int> matching_ids;
   const char* select_sql = "SELECT id FROM myRTree WHERE id MATCH circle(0.0, 0.0, 2.0);";
-  auto rc = sqlite3_exec(db, select_sql, Extension::CircleExtensionManager::Callback, &matching_ids, &error_message);
+  auto rc = sqlite3_exec(db, select_sql, Extension::BasicExtensionManager::Callback, &matching_ids, &error_message);
   if (rc != SQLITE_OK) {
     fprintf(stderr, "SQL error: %s\n", error_message);
     sqlite3_free(error_message);

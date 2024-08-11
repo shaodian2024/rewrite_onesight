@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include",  // 添加你的头文件路径
+                "C:/path/to/other/headers",      // 其他需要的路径
+                "C:/Users/shaodian/Documents/GitHub/rewrite_onesight/include", 
+                "C:/Users/shaodian/Documents/GitHub/rewrite_onesight"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "${workspaceFolder}/include"   // 同样添加到browse路径
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 4
+}
