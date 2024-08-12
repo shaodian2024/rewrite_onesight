@@ -31,7 +31,7 @@ public:
   };
   std::string GetFunctionName() const { return function_name_; }
   void SetFunctionName(std::string function_name) { function_name_ = function_name; }
-  virtual int TestRange(sqlite3_rtree_query_info* info) = 0;
+  virtual int TestRange(sqlite3_rtree_query_info& info) = 0;
   FunctionType GetType() { return type_; }
 
 protected:
@@ -46,7 +46,7 @@ public:
     function_name_ = "iModel_spatial_overlap_aabb";
   }
   ~BoxQueryFunction() = default;
-  int TestRange(sqlite3_rtree_query_info *info);
+  int TestRange(sqlite3_rtree_query_info& info);
 };
 
 class PlaneQueryFucntion : public BasicFunction {
@@ -56,7 +56,7 @@ public:
     function_name_ = "onesight_spatial_overlap_aabb";
   }
   ~PlaneQueryFucntion() = default;
-  int TestRange(sqlite3_rtree_query_info* info);
+  int TestRange(sqlite3_rtree_query_info& info);
 };
 class __declspec(dllexport) CircleExtensionManager : public BasicExtensionManager{
 public:

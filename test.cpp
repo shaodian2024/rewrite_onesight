@@ -4,6 +4,10 @@
 #include "export.h"
 #include "iostream"
 #include <chrono>
+// #include <minwindef.h>
+// #include <libloaderapi.h>
+// HMODULE hModule = LoadLibrary("/c/Users/shaodian/Documents/GitHub/rewrite_onesight/build_debug/RtreeRepo/Debug/RtreeRepo.dll");
+
 int main(int argc, char* argv[]) {
     auto file_name = argv[1];
     double minX = -15.78279f, minY = -0.1f, minZ = -30.30879f, maxX = 4.667215f, maxY = 9.0f, maxZ = 17.0f;

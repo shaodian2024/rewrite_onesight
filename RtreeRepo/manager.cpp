@@ -15,16 +15,16 @@ int BasicExtensionManager::OpenDb(const char* db_name, sqlite3*& db) {
 }
 
 int BasicExtensionManager::CloseDb(sqlite3* db) {
-  sqlite3_close(db);
+  return sqlite3_close(db);
 }
 
-static int rTreeMatch(sqlite3_rtree_query_info* info) {
-  return ((BasicFunction*) info->pContext)->TestRange(info);
+static int rTreeMatch(sqlite3_rtree_query_info& info) {
+  return ((BasicFunction*) info.pContext)->TestRange(info);
 }
 
 int BasicExtensionManager::RegisterFunction(sqlite3* db, BasicFunction* function) {
   return sqlite3_rtree_query_callback(db, function->GetFunctionName().c_str(), 
-    (int(*)(sqlite3_rtree_query_info*)) rTreeMatch, &function, nullptr);
+    (int(*)(sqlite3_rtree_query_info*)) rTreeMatch, function, nullptr);
 }
 
 }

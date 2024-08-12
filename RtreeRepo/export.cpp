@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "extension.h"
 #include <iostream>
 #include <vector>
@@ -136,51 +137,58 @@ struct frustum_plane {
     double d        = 0;
 };
 
-int PlaneQueryFucntion::TestRange(QueryInfo const& info) {
-    info.m_within = Within::Outside;
+struct RTree3dVal
+{
+    double m_minx, m_maxx, m_miny, m_maxy, m_minz, m_maxz;
+};
+typedef RTree3dVal const* RTree3dValCP;
+
+int PlaneQueryFucntion::TestRange(sqlite3_rtree_query_info &info) {
+    info.eWithin = static_cast<int>(Within::Outside);
     frustum_plane plane1, plane2, plane3, plane4, plane5, plane6;
-    plane1.normal_x = info.m_args[0].GetValueDouble();
-    plane1.normal_y = info.m_args[1].GetValueDouble();
-    plane1.normal_z = info.m_args[2].GetValueDouble();
-    plane1.d        = info.m_args[3].GetValueDouble();
-    plane2.normal_x = info.m_args[4].GetValueDouble();
-    plane2.normal_y = info.m_args[5].GetValueDouble();
-    plane2.normal_z = info.m_args[6].GetValueDouble();
-    plane2.d        = info.m_args[7].GetValueDouble();
-    plane3.normal_x = info.m_args[8].GetValueDouble();
-    plane3.normal_y = info.m_args[9].GetValueDouble();
-    plane3.normal_z = info.m_args[10].GetValueDouble();
-    plane3.d        = info.m_args[11].GetValueDouble();
-    plane4.normal_x = info.m_args[12].GetValueDouble();
-    plane4.normal_y = info.m_args[13].GetValueDouble();
-    plane4.normal_z = info.m_args[14].GetValueDouble();
-    plane4.d        = info.m_args[15].GetValueDouble();
-    plane5.normal_x = info.m_args[16].GetValueDouble();
-    plane5.normal_y = info.m_args[17].GetValueDouble();
-    plane5.normal_z = info.m_args[18].GetValueDouble();
-    plane5.d        = info.m_args[19].GetValueDouble();
-    plane6.normal_x = info.m_args[20].GetValueDouble();
-    plane6.normal_y = info.m_args[21].GetValueDouble();
-    plane6.normal_z = info.m_args[22].GetValueDouble();
-    plane6.d        = info.m_args[23].GetValueDouble();
-    RTree3dValCP pt = (RTree3dValCP)info.m_coords;
+
+    plane1.normal_x = sqlite3_value_double(info.apSqlParam[0]);
+    plane1.normal_y = sqlite3_value_double(info.apSqlParam[1]);
+    plane1.normal_z = sqlite3_value_double(info.apSqlParam[2]);
+    plane1.d        = sqlite3_value_double(info.apSqlParam[3]);
+    plane2.normal_x = sqlite3_value_double(info.apSqlParam[4]);
+    plane2.normal_y = sqlite3_value_double(info.apSqlParam[5]);
+    plane2.normal_z = sqlite3_value_double(info.apSqlParam[6]);
+    plane2.d        = sqlite3_value_double(info.apSqlParam[7]);
+    plane3.normal_x = sqlite3_value_double(info.apSqlParam[8]);
+    plane3.normal_y = sqlite3_value_double(info.apSqlParam[9]);
+    plane3.normal_z = sqlite3_value_double(info.apSqlParam[10]);
+    plane3.d        = sqlite3_value_double(info.apSqlParam[11]);
+    plane4.normal_x = sqlite3_value_double(info.apSqlParam[12]);
+    plane4.normal_y = sqlite3_value_double(info.apSqlParam[13]);
+    plane4.normal_z = sqlite3_value_double(info.apSqlParam[14]);
+    plane4.d        = sqlite3_value_double(info.apSqlParam[15]);
+    plane5.normal_x = sqlite3_value_double(info.apSqlParam[16]);
+    plane5.normal_y = sqlite3_value_double(info.apSqlParam[17]);
+    plane5.normal_z = sqlite3_value_double(info.apSqlParam[18]);
+    plane5.d        = sqlite3_value_double(info.apSqlParam[19]);
+    plane6.normal_x = sqlite3_value_double(info.apSqlParam[20]);
+    plane6.normal_y = sqlite3_value_double(info.apSqlParam[21]);
+    plane6.normal_z = sqlite3_value_double(info.apSqlParam[22]);
+    plane6.d        = sqlite3_value_double(info.apSqlParam[23]);
+    RTree3dValCP pt = (RTree3dValCP)info.aCoord;
  
-    if (info.m_parentWithin == Within::Outside) {
+    if (info.eParentWithin == static_cast<int>(Within::Outside)) {
         return SQLITE_OK;
     }
 
-    // bool passedTest = (info.m_parentWithin == Within::Inside) ? true : bounds.Intersects(*pt);
+    // bool passedTest = (info.eParentWithin == Within::Inside) ? true : bounds.Intersects(*pt);
     // if (!passedTest)
        // return BE_SQLITE_OK;
 
-    if (info.m_level > 0)
+    if (info.iLevel > 0)
     {
         // For nodes, return 'level-score'.
-        info.m_score = info.m_level;
-        if (info.m_parentWithin == Within::Inside) {
-            info.m_within = Within::Inside;
+        info.rScore = info.iLevel;
+        if (info.eParentWithin == static_cast<int>(Within::Inside)) {
+            info.eWithin = static_cast<int>(Within::Inside);
         } else {
-            info.m_within = FrustumChecker::CheckBoxWithFrustum(
+            info.eWithin = static_cast<int>(FrustumChecker::CheckBoxWithFrustum(
                 plane1.normal_x, plane1.normal_y, plane1.normal_z, plane1.d,
                 plane2.normal_x, plane2.normal_y, plane2.normal_z, plane2.d,
                 plane3.normal_x, plane3.normal_y, plane3.normal_z, plane3.d,
@@ -188,58 +196,58 @@ int PlaneQueryFucntion::TestRange(QueryInfo const& info) {
                 plane5.normal_x, plane5.normal_y, plane5.normal_z, plane5.d,
                 plane6.normal_x, plane6.normal_y, plane6.normal_z, plane6.d,
                 pt->m_minx, pt->m_maxx, pt->m_miny, pt->m_maxy, pt->m_minz, pt->m_maxz
-            );
+            ));
         }
     }
     else
     {
         // For entries (ilevel==0), we return 0 so they are processed immediately (lowest score has highest priority).
-        info.m_score = 0;
-        info.m_within = Within::Partly;
+        info.rScore = 0;
+        info.eWithin = static_cast<int>(Within::Partly);
     }
     return SQLITE_OK;
 }
 
 
-int BoxQueryFunction::TestRange(QueryInfo const& info)
+int BoxQueryFunction::TestRange(sqlite3_rtree_query_info& info)
     {
-#if !shenghang_aabb
-    // shenghang hide the code below since the info.m_nParam should be 6
-    if (info.m_nParam != 1 || info.m_args[0].GetValueBytes() != sizeof(DRange3d))
-         return SQLITE_ERROR;
-#endif
-    info.m_within = Within::Outside;
+// #if !shenghang_aabb
+//     // shenghang hide the code below since the info.m_nParam should be 6
+//     if (info.m_nParam != 1 || info.m_args[0].GetValueBytes() != sizeof(DRange3d))
+//          return SQLITE_ERROR;
+// #endif
+//     info.eWithin = Within::Outside;
 
-    RTree3dVal bounds(*(DRange3dCP) info.m_args[0].GetValueBlob());
-    RTree3dValCP pt = (RTree3dValCP) info.m_coords;
-#if shenghang_aabb
-    bounds.m_minx = info.m_args[0].GetValueDouble();
-    bounds.m_maxx = info.m_args[1].GetValueDouble();
-    bounds.m_miny = info.m_args[2].GetValueDouble();
-    bounds.m_maxy = info.m_args[3].GetValueDouble();
-    bounds.m_minz = info.m_args[4].GetValueDouble();
-    bounds.m_maxz = info.m_args[5].GetValueDouble();
-#endif
-    bool passedTest = (info.m_parentWithin == Within::Inside) ? true : bounds.Intersects(*pt);
-    if (!passedTest)
-        return SQLITE_OK;
+//     RTree3dVal bounds(*(DRange3dCP) info.m_args[0].GetValueBlob());
+//     RTree3dValCP pt = (RTree3dValCP) info.m_coords;
+// #if shenghang_aabb
+//     bounds.m_minx = info.m_args[0].GetValueDouble();
+//     bounds.m_maxx = info.m_args[1].GetValueDouble();
+//     bounds.m_miny = info.m_args[2].GetValueDouble();
+//     bounds.m_maxy = info.m_args[3].GetValueDouble();
+//     bounds.m_minz = info.m_args[4].GetValueDouble();
+//     bounds.m_maxz = info.m_args[5].GetValueDouble();
+// #endif
+//     bool passedTest = (info.eParentWithin == Within::Inside) ? true : bounds.Intersects(*pt);
+//     if (!passedTest)
+//         return SQLITE_OK;
 
-    if (info.m_level>0)
-        {
-        // For nodes, return 'level-score'.
-        info.m_score = info.m_level;
-        info.m_within = info.m_parentWithin == Within::Inside ? Within::Inside : bounds.Contains(*pt) ? Within::Inside : Within::Partly;
-        }
-    else
-        {
-        // For entries (ilevel==0), we return 0 so they are processed immediately (lowest score has highest priority).
-        info.m_score = 0;
-        info.m_within = Within::Partly;
-        }
-    // if (info.m_within == Within::Inside) {
-    //     mutex_.lock();
-    //     info_.emplace()
-    // }
+//     if (info.iLevel>0)
+//         {
+//         // For nodes, return 'level-score'.
+//         info.rScore = info.iLevel;
+//         info.eWithin = info.eParentWithin == Within::Inside ? Within::Inside : bounds.Contains(*pt) ? Within::Inside : Within::Partly;
+//         }
+//     else
+//         {
+//         // For entries (ilevel==0), we return 0 so they are processed immediately (lowest score has highest priority).
+//         info.rScore = 0;
+//         info.eWithin = Within::Partly;
+//         }
+//     // if (info.eWithin == Within::Inside) {
+//     //     mutex_.lock();
+//     //     info_.emplace()
+//     // }
     return SQLITE_OK;
     }
 
@@ -427,7 +435,7 @@ extern "C" int ApplyStringToGetId(const char* function_name, Utf8CP db_name, int
     }
 
     // BentleyM0200::BeSQLite::RTreeMatchFunction::QueryInfo info; // QueryInfo here is sqlite3_rtree_query_info actually.
-    if (add_function_result = SUCCESS) {
+    if (add_function_result == SQLITE_OK) {
         std::cout << "db AddRTreeMatchFunction success" << std::endl;
     } else {
         std::cout << "db AddRTreeMatchFunction failed" << std::endl;
