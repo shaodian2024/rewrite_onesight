@@ -24,10 +24,11 @@ int main(int argc, char* argv[]) {
     // std::string fmt = "SELECT EleId FROM DB_SpatialIndex WHERE EleId MATCH iModel_spatial_overlap_aabb(-16, -0 , -31, 5, 9, 17) ORDER BY iModel_bbox_volume(iModel_bbox(MinX,MinY,MinZ,MaxX,MaxY,MaxZ)) DESC";
     // no such function: iModel_bbox
     // std::string fmt = "SELECT EleId FROM DB_SpatialIndex WHERE EleId MATCH iModel_spatial_overlap_aabb(-23.774, -5.125, -39.024, 8.586, 3.524, -25.9)";
-    // std::string fmt = "SELECT EleId FROM DB_SpatialIndex WHERE EleId MATCH iModel_spatial_overlap_aabb(-23.774, 8.586, -5.125, 3.524, -39.024, -25.9) ORDER BY screen height_ratio(camera_position_threshold(-15.0, -0.1, -30.3, 0.3, 0.05, 0.01)) DESC";
+    std::string fmt = "SELECT EleId FROM DB_SpatialIndex WHERE EleId MATCH iModel_spatial_overlap_aabb(-23.774, 8.586, -5.125, 3.524, -39.024, -25.9) ORDER BY screen height_ratio(camera_position_threshold(-15.0, -0.1, -30.3, 0.3, 0.05, 0.01)) DESC";
+    // std::string fmt = "SELECT EleId FROM DB_SpatialIndex WHERE EleId MATCH iModel_spatial_overlap_aabb(-1000, 1000, -1000, 1000, -1000, 1000) ORDER BY screen height_ratio(camera_position_threshold(-15.0, -0.1, -30.3, 0.3, 0.05, 0.01)) DESC";
     // minX, maxX, minY, maxY, minZ, MaxZ
     // std::cout << fmt << std::endl;
-    std::string fmt = "SELECT EleId FROM DB_SpatialIndex WHERE EleId MATCH onesight_spatial_overlap_aabb(-1,-1,-1,10000,-1,-1,-1,10000,-1,-1,-1,10000,-1,-1,-1,10000,-1,-1,-1,10000,-1,-1,-1,10000) ORDER BY screen height_ratio(camera_position_threshold(45.969471,36.1554375,42.2682533,0.3,0.05,0.01)) DESC";
+    // std::string fmt = "SELECT EleId FROM DB_SpatialIndex WHERE EleId MATCH onesight_spatial_overlap_aabb(-1,-1,-1,10000,-1,-1,-1,10000,-1,-1,-1,10000,-1,-1,-1,10000,-1,-1,-1,10000,-1,-1,-1,10000) ORDER BY screen height_ratio(camera_position_threshold(45.969471,36.1554375,42.2682533,0.3,0.05,0.01)) DESC";
     // std::string fmt = "SELECT EleId FROM DB_SpatialIndex WHERE EleId MATCH onesight_spatial_overlap_aabb(0,0,1,-2,0,0,1,10,-1,0,0,2,1,0,0,100,0,1,0,100,0,-1,0,100) ORDER BY screen height_ratio(camera_position_threshold(45.969471,36.1554375,42.2682533,0.3,0.05,0.01)) DESC";
 
     int* array = new int[1000];
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
     int** lod_array = &lods;
     int useless2 = 10;
     int* id_count = &useless2;
-    for (auto i = 1; i <= 10; i++) {
+    for (auto i = 1; i <= 5; i++) {
         auto start = std::chrono::high_resolution_clock::now();
         auto sucess = ApplyStringToGetId(fmt.c_str(), file_name, id_array, lod_array, id_count);
         auto end = std::chrono::high_resolution_clock::now();

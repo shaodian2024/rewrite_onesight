@@ -1,4 +1,5 @@
 #include "extension.h"
+#include <iostream>
 namespace Extension {
 int BasicExtensionManager::OpenDb(const char* db_name, sqlite3*& db) {
   sqlite3* open_db;
@@ -10,6 +11,7 @@ int BasicExtensionManager::OpenDb(const char* db_name, sqlite3*& db) {
     return FAILED;
   } else {
     db = open_db;
+    std::cout << "open database success" << std::endl;
     return SUCCESS;
   }
 }

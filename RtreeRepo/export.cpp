@@ -8,6 +8,21 @@
 #include <algorithm>
 #include <regex>
 namespace Extension {
+struct DPoint3d
+{
+//! x coordinate
+double x;
+//! y coordinate
+double y;
+//! z coordinate
+double z;
+};
+
+struct DRange3d  {DPoint3d low, high;};
+using DRange3dCP = const DRange3d*;
+using DRange3dR = DRange3d&;
+
+
 enum class Within : int
 {
     Outside = 0,
@@ -137,9 +152,40 @@ struct frustum_plane {
     double d        = 0;
 };
 
+
+using DRange3dCR = const DRange3d&;
 struct RTree3dVal
 {
     double m_minx, m_maxx, m_miny, m_maxy, m_minz, m_maxz;
+
+    RTree3dVal() {Invalidate();}
+    RTree3dVal(DRange3dCR range) {FromRange(range);}
+    void Invalidate() {m_minx=m_miny=m_minz=1; m_maxx=m_maxy=m_maxz=-1;}
+    double Margin() const {return (m_maxx-m_minx) + (m_maxy-m_miny) + (m_maxz-m_minz);}
+    double Margin2d() const {return (m_maxx-m_minx) + (m_maxy-m_miny);}
+    void ToRangeR(DRange3dR range) const {range.low.x=m_minx; range.low.y=m_miny; range.low.z=m_minz; range.high.x=m_maxx; range.high.y=m_maxy; range.high.z=m_maxz;}
+    DRange3d ToRange() const {DRange3d range; ToRangeR(range); return range;}
+    void FromRange(DRange3dCR range) {m_minx=range.low.x; m_maxx=range.high.x; m_miny=range.low.y; m_maxy=range.high.y; m_minz=range.low.z; m_maxz=range.high.z;}
+    bool IsValid() const {return m_maxx>=m_minx && m_maxy>=m_miny && m_maxz>=m_minz;}
+    void Union(RTree3dVal const& other) {m_minx=std::min(m_minx,other.m_minx); m_miny=std::min(m_miny,other.m_miny); m_minz=std::min(m_minz,other.m_minz);
+                                         m_maxx=std::max(m_maxx,other.m_maxx); m_maxy=std::max(m_maxy,other.m_maxy); m_maxz=std::max(m_maxz,other.m_maxz);}
+    bool Contains(RTree3dVal const& other) const   {return m_minx<=other.m_minx && m_miny<=other.m_miny && m_minz<=other.m_minz &&
+                                                           m_maxx>=other.m_maxx && m_maxy>=other.m_maxy && m_maxz>=other.m_maxz;}
+    bool Intersects(RTree3dVal const& other) const {return m_minx<=other.m_maxx && m_maxx>=other.m_minx &&
+                                                           m_miny<=other.m_maxy && m_maxy>=other.m_miny &&
+                                                           m_minz<=other.m_maxz && m_maxz>=other.m_minz;}
+    bool Intersection(RTree3dVal const& left, RTree3dVal const& right) 
+                                                            {
+                                                            m_minx = left.m_minx > right.m_minx ? left.m_minx : right.m_minx;
+                                                            m_miny = left.m_miny > right.m_miny ? left.m_miny : right.m_miny;
+                                                            m_minz = left.m_minz > right.m_minz ? left.m_minz : right.m_minz;
+                                                            m_maxx = left.m_maxx < right.m_maxx ? left.m_maxx : right.m_maxx;
+                                                            m_maxy = left.m_maxy < right.m_maxy ? left.m_maxy : right.m_maxy;
+                                                            m_maxz = left.m_maxz < right.m_maxz ? left.m_maxz : right.m_maxz;
+                                                            return IsValid();
+                                                            }
+    bool Intersects2d(RTree3dVal const& other) const {return m_minx<= other.m_maxx && m_maxx>= other.m_minx &&
+                                                            m_miny<= other.m_maxy && m_maxy>= other.m_miny ;}
 };
 typedef RTree3dVal const* RTree3dValCP;
 
@@ -216,38 +262,46 @@ int BoxQueryFunction::TestRange(sqlite3_rtree_query_info& info)
 //     if (info.m_nParam != 1 || info.m_args[0].GetValueBytes() != sizeof(DRange3d))
 //          return SQLITE_ERROR;
 // #endif
-//     info.eWithin = Within::Outside;
+    info.eWithin = static_cast<int>(Within::Outside);
 
-//     RTree3dVal bounds(*(DRange3dCP) info.m_args[0].GetValueBlob());
-//     RTree3dValCP pt = (RTree3dValCP) info.m_coords;
-// #if shenghang_aabb
-//     bounds.m_minx = info.m_args[0].GetValueDouble();
-//     bounds.m_maxx = info.m_args[1].GetValueDouble();
-//     bounds.m_miny = info.m_args[2].GetValueDouble();
-//     bounds.m_maxy = info.m_args[3].GetValueDouble();
-//     bounds.m_minz = info.m_args[4].GetValueDouble();
-//     bounds.m_maxz = info.m_args[5].GetValueDouble();
-// #endif
-//     bool passedTest = (info.eParentWithin == Within::Inside) ? true : bounds.Intersects(*pt);
-//     if (!passedTest)
-//         return SQLITE_OK;
+    RTree3dVal bounds;
+    bounds.m_minx = sqlite3_value_double(info.apSqlParam[0]);
+    bounds.m_maxx = sqlite3_value_double(info.apSqlParam[1]);
+    bounds.m_miny = sqlite3_value_double(info.apSqlParam[2]);
+    bounds.m_maxy = sqlite3_value_double(info.apSqlParam[3]);
+    bounds.m_minz = sqlite3_value_double(info.apSqlParam[4]);
+    bounds.m_maxz = sqlite3_value_double(info.apSqlParam[5]);
 
-//     if (info.iLevel>0)
-//         {
-//         // For nodes, return 'level-score'.
-//         info.rScore = info.iLevel;
-//         info.eWithin = info.eParentWithin == Within::Inside ? Within::Inside : bounds.Contains(*pt) ? Within::Inside : Within::Partly;
-//         }
-//     else
-//         {
-//         // For entries (ilevel==0), we return 0 so they are processed immediately (lowest score has highest priority).
-//         info.rScore = 0;
-//         info.eWithin = Within::Partly;
-//         }
-//     // if (info.eWithin == Within::Inside) {
-//     //     mutex_.lock();
-//     //     info_.emplace()
-//     // }
+    // RTree3dVal bounds(*(DRange3dCP) info.m_args[0].GetValueBlob());
+    RTree3dValCP pt = (RTree3dValCP)info.aCoord;    
+#if shenghang_aabb
+    bounds.m_minx = info.m_args[0].GetValueDouble();
+    bounds.m_maxx = info.m_args[1].GetValueDouble();
+    bounds.m_miny = info.m_args[2].GetValueDouble();
+    bounds.m_maxy = info.m_args[3].GetValueDouble();
+    bounds.m_minz = info.m_args[4].GetValueDouble();
+    bounds.m_maxz = info.m_args[5].GetValueDouble();
+#endif
+    bool passedTest = (info.eParentWithin == static_cast<int>(Within::Inside)) ? true : bounds.Intersects(*pt);
+    if (!passedTest)
+        return SQLITE_OK;
+
+    if (info.iLevel>0)
+        {
+        // For nodes, return 'level-score'.
+        info.rScore = info.iLevel;
+        info.eWithin = info.eParentWithin == static_cast<int>(Within::Inside) ? static_cast<int>(Within::Inside) : bounds.Contains(*pt) ? static_cast<int>(Within::Inside) : static_cast<int>(Within::Partly);
+        }
+    else
+        {
+        // For entries (ilevel==0), we return 0 so they are processed immediately (lowest score has highest priority).
+        info.rScore = 0;
+        info.eWithin = static_cast<int>(Within::Partly);
+        }
+    // if (info.eWithin == Within::Inside) {
+    //     mutex_.lock();
+    //     info_.emplace()
+    // }
     return SQLITE_OK;
     }
 
