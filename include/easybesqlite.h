@@ -1,7 +1,14 @@
 #pragma once
 #include "RtreeRepo/sqlite3ext.h"
 namespace Extension{
-class __declspec(dllexport) ExtensionManager {
+#ifndef ONESIGHT_EXPORT
+    #ifdef BUILD_FOR_WINDOWS
+    # define ONESIGHT_EXPORT __declspec(dllexport)
+  #else
+    # define ONESIGHT_EXPORT
+  #endif
+#endif
+class ONESIGHT_EXPORT ExtensionManager {
 public:
   ExtensionManager() = default;
   ~ExtensionManager() = default;

@@ -4,8 +4,15 @@
 namespace Extension{
 #define SUCCESS 0;
 #define FAILED 1;
+#ifndef ONESIGHT_EXPORT
+#ifdef BUILD_FOR_WINDOWS
+# define ONESIGHT_EXPORT __declspec(dllexport)
+#else
+# define ONESIGHT_EXPORT
+#endif
+#endif
 class BasicFunction;
-class __declspec(dllexport) BasicExtensionManager {
+class ONESIGHT_EXPORT BasicExtensionManager {
 public:
   BasicExtensionManager() = default;
   ~BasicExtensionManager() = default;
@@ -58,7 +65,7 @@ public:
   ~PlaneQueryFucntion() = default;
   int TestRange(sqlite3_rtree_query_info& info);
 };
-class __declspec(dllexport) CircleExtensionManager : public BasicExtensionManager{
+class ONESIGHT_EXPORT CircleExtensionManager : public BasicExtensionManager{
 public:
   CircleExtensionManager() = default;
   ~CircleExtensionManager() = default;

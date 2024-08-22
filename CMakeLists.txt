@@ -115,7 +115,6 @@ message (STATUS "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
 message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 add_subdirectory(RtreeRepo)
 
-
 set_target_properties(${BIN} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
