@@ -4,12 +4,19 @@
 #ifdef BUILD_FOR_WINDOWS
     # define ONESIGHT_EXPORT __declspec(dllexport)
   #else
-    # define ONESIGHT_EXPORT
+    # define ONESIGHT_EXPORT JNICALL
   #endif
 #endif
+#ifdef BUILD_FOR_ANDROID
+    # define JAVA_EXPORT 
+  #else
+    # define JAVA_EXPORT JNIEXPORT
+#endif
+#include <jni.h> // 包含JNI头文件
+
 typedef char Utf8Char;
 typedef Utf8Char const* Utf8CP;
 extern "C" {
-	int ONESIGHT_EXPORT ApplyStringToGetId(const char* s, Utf8CP db_name, int** id_array, int** lods_after_sort, int* id_count);
-	void ONESIGHT_EXPORT FreeIntArrayMemory(int* id_array);
+	JAVA_EXPORT int ONESIGHT_EXPORT ApplyStringToGetId(const char* s, Utf8CP db_name, int** id_array, int** lods_after_sort, int* id_count);
+	JAVA_EXPORT void ONESIGHT_EXPORT FreeIntArrayMemory(int* id_array);
 }
