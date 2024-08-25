@@ -23,6 +23,10 @@ add_library(RtreeRepo SHARED
 # add_library(RtreeRepo
   ${BE_SOURCES}
 )
+set_target_properties(RtreeRepo PROPERTIES
+  ARCHITECTURES "arm64"
+  XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "12.0"  # 设置iOS部署目标
+)
   # link_directories(${PROJECT_SOURCE_DIR}/third_party)
   # find_library(SHLWAPI_LIBRARY ShLwApi PATHS ${PROJECT_SOURCE_DIR}/third_party)
   # target_link_libraries(RtreeRepo ${SHLWAPI_LIBRARY})
