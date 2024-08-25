@@ -1,18 +1,24 @@
 #pragma once
 #include <string>
 #ifndef ONESIGHT_EXPORT
-#ifdef BUILD_FOR_WINDOWS
-    # define ONESIGHT_EXPORT __declspec(dllexport)
+  #ifdef BUILD_FOR_WINDOWS
+    #define ONESIGHT_EXPORT __declspec(dllexport)
   #else
-    # define ONESIGHT_EXPORT JNICALL
+    #ifdef BUILD_FOR_ANDROID
+      #define ONESIGHT_EXPORT JNICALL
+    #else
+      #ifdef BUILD_FOR_APPLE
+        #define ONESIGHT_EXPORT 
+      #endif
+    #endif
   #endif
 #endif
 #ifdef BUILD_FOR_ANDROID
-    # define JAVA_EXPORT 
-  #else
-    # define JAVA_EXPORT JNIEXPORT
+  # define JAVA_EXPORT JNIEXPORT
+  #include <jni.h>
+#else
+  # define JAVA_EXPORT
 #endif
-#include <jni.h> // 包含JNI头文件
 
 typedef char Utf8Char;
 typedef Utf8Char const* Utf8CP;
