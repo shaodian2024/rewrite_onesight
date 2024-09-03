@@ -7,9 +7,7 @@
     #ifdef BUILD_FOR_ANDROID
       #define ONESIGHT_EXPORT JNICALL
     #else
-      #ifdef BUILD_FOR_APPLE
-        #define ONESIGHT_EXPORT 
-      #endif
+      #define ONESIGHT_EXPORT 
     #endif
   #endif
 #endif

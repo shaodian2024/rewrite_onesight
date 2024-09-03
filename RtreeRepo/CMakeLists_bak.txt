@@ -19,7 +19,7 @@ file (GLOB_RECURSE BE_SOURCES
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-add_library(RtreeRepo STATIC
+add_library(RtreeRepo SHARED
 # add_library(RtreeRepo
   ${BE_SOURCES}
 )
