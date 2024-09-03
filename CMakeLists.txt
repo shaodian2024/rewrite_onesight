@@ -29,6 +29,8 @@ ELSEIF(BUILD_FOR_APPLE)
   # 设置CMake工具链文件
   set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../ios-cmake/ios.toolchain.cmake)
   set(PLATFORM "OS64")  # 或使用 OS64COMBINED 以生成包含模拟器和设备的 FAT 库
+  # set(PLATFORM "OS64COMBINED")
+  set(CMAKE_OSX_ARCHITECTURES "arm64;armv7;x86_64")
 ENDIF()
 
 IF(BUILD_FOR_ANDROID)
