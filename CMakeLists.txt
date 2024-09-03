@@ -27,7 +27,9 @@ ELSEIF(BUILD_FOR_APPLE)
   add_definitions(-D__APPLE__)
   add_compile_definitions(__APPLE__)
   # 设置CMake工具链文件
-  set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../ios-cmake/ios.toolchain.cmake)
+  # set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../ios-cmake/ios.toolchain.cmake)
+  set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.0")  # 或者更高版本
   set(PLATFORM "OS64")  # 或使用 OS64COMBINED 以生成包含模拟器和设备的 FAT 库
   # set(PLATFORM "OS64COMBINED")
   set(CMAKE_OSX_ARCHITECTURES "arm64;armv7;x86_64")
