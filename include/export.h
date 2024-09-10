@@ -1,22 +1,17 @@
 #pragma once
+// #ifdef __EMSCRIPTEN__
+// #define DEPRECATED(msg) __attribute__((deprecated(msg)))
+// #else
+// #define DEPRECATED(msg) __attribute__((deprecated))
+// #endif
+#include <emscripten.h>
 #include <string>
-#ifndef ONESIGHT_EXPORT
-#ifdef BUILD_FOR_WINDOWS
-    # define ONESIGHT_EXPORT __declspec(dllexport)
-  #else
-    # define ONESIGHT_EXPORT JNICALL
-  #endif
-#endif
-#ifdef BUILD_FOR_ANDROID
-    # define JAVA_EXPORT 
-  #else
-    # define JAVA_EXPORT JNIEXPORT
-#endif
-#include <jni.h> // 包含JNI头文件
-
+// #ifndef ONESIGHT_EXPORT_WEB3
+//   #define ONESIGHT_EXPORT_WEB3 EMSCRIPTEN_KEEPALIVE
+// #endif
 typedef char Utf8Char;
 typedef Utf8Char const* Utf8CP;
 extern "C" {
-	JAVA_EXPORT int ONESIGHT_EXPORT ApplyStringToGetId(const char* s, Utf8CP db_name, int** id_array, int** lods_after_sort, int* id_count);
-	JAVA_EXPORT void ONESIGHT_EXPORT FreeIntArrayMemory(int* id_array);
+  EMSCRIPTEN_KEEPALIVE int ApplyStringToGetId(const char* s, Utf8CP db_name, int** id_array, int** lods_after_sort, int* id_count);
+  EMSCRIPTEN_KEEPALIVE void FreeIntArrayMemory(int* id_array);
 }
