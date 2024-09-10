@@ -1,5 +1,8 @@
 build/*
 build_release/*
 build_debug/*
+build_dynamic/*
+build_static/*
+RtreeRepo/build/*
 .vs/*
 out/*
