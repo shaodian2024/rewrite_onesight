@@ -27,7 +27,7 @@ IF(BUILD_FOR_WEB3)
     set(CMAKE_CXX_COMPILER em++)
   endif()  
 ENDIF()
-file (GLOB_RECURSE CXX_SOURCES 
+file (GLOB_RECURSE BE_SOURCES 
   ./*.cpp
   # ./*.c
   # ./*.cc
