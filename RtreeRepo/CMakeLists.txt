@@ -72,7 +72,7 @@ set(CXX_WASM_FILE "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo_CXX.wasm")
 # 使用 add_custom_command 定义一个命令来生成 WebAssembly 模块
 add_custom_command(
     OUTPUT ${CXX_WASM_FILE}
-    COMMAND em++ -Os --no-entry -s EXPORTED_FUNCTIONS='["_ApplyStringToGetId","_FreeIntArrayMemory"]'  
+    COMMAND em++ -Os --no-entry -s
                     -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s EXPORT_NAME=RtreeRepo 
                     -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
                     -I${CMAKE_CURRENT_SOURCE_DIR}/../
@@ -88,7 +88,7 @@ add_custom_command(
 set(C_WASM_FILE "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo_C.wasm")
 add_custom_command(
     OUTPUT ${C_WASM_FILE}
-    COMMAND emcc -Os --no-entry -s EXPORTED_FUNCTIONS='["_ApplyStringToGetId","_FreeIntArrayMemory"]'  
+    COMMAND emcc -Os --no-entry -s
                     -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s EXPORT_NAME=RtreeRepo 
                     -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
                     -I${CMAKE_CURRENT_SOURCE_DIR}/../
