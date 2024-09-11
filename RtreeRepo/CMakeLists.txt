@@ -37,12 +37,12 @@ file (GLOB_RECURSE CXX_SOURCES
   # ${OTHER_FILES}
 )
 file (GLOB_RECURSE C_SOURCES 
-  ./*.cpp
-  # ./*.c
-  # ./*.cc
-  ./*/*.cpp
-  # ./*/*.c
-  # ./*/*.cc
+  # ./*.cpp
+  ./*.c
+  ./*.cc
+  # ./*/*.cpp
+  ./*/*.c
+  ./*/*.cc
   # ${OTHER_FILES}
 )
 # set(CMAKE_CXX_COMPILE_OPTIONS
@@ -67,11 +67,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 # 定义要生成的输出文件
-set(OUTPUT_WASM_FILE "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo.wasm")
+set(CXX_WASM_FILE "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo_CXX.wasm")
 
 # 使用 add_custom_command 定义一个命令来生成 WebAssembly 模块
 add_custom_command(
-    OUTPUT ${OUTPUT_WASM_FILE}
+    OUTPUT ${CXX_WASM_FILE}
     COMMAND em++ -Os --no-entry -s EXPORTED_FUNCTIONS='["_ApplyStringToGetId","_FreeIntArrayMemory"]'  
                     -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s EXPORT_NAME=RtreeRepo 
                     -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
@@ -80,13 +80,91 @@ add_custom_command(
                     -I${CMAKE_CURRENT_SOURCE_DIR}/../include
                     # -Wno-redefinition
                     -Wno-everything
-                    ${BE_SOURCES} -o ${OUTPUT_WASM_FILE} 
-    DEPENDS ${BE_SOURCES}
-    COMMENT "Building RtreeRepo as a WebAssembly module"
+                    ${CXX_SOURCES} -o ${CXX_WASM_FILE} 
+    DEPENDS ${CXX_SOURCES}
+    COMMENT "Building RtreeRepo C code as WebAssembly module"
     VERBATIM
 )
+set(C_WASM_FILE "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo_C.wasm")
+add_custom_command(
+    OUTPUT ${C_WASM_FILE}
+    COMMAND emcc -Os --no-entry -s EXPORTED_FUNCTIONS='["_ApplyStringToGetId","_FreeIntArrayMemory"]'  
+                    -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s EXPORT_NAME=RtreeRepo 
+                    -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
+                    -I${CMAKE_CURRENT_SOURCE_DIR}/../
+                    -I${CMAKE_CURRENT_SOURCE_DIR}/
+                    -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+                    # -Wno-redefinition
+                    -Wno-everything
+                    ${C_SOURCES} -o ${C_WASM_FILE} 
+    DEPENDS ${C_SOURCES}
+    COMMENT "Building RtreeRepo C code as WebAssembly module"
+    VERBATIM
+)
+####################分割线1 begin#######################
+
+
+# # # 使用 add_custom_command 定义一个命令来生成 WebAssembly 模块
+# # add_custom_command(
+# #     OUTPUT ${OUTPUT_WASM_FILE}
+# #     COMMAND em++ -Os --no-entry -s EXPORTED_FUNCTIONS='["_ApplyStringToGetId","_FreeIntArrayMemory"]'  
+# #                     -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s EXPORT_NAME=RtreeRepo 
+# #                     -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
+# #                     -I${CMAKE_CURRENT_SOURCE_DIR}/../
+# #                     -I${CMAKE_CURRENT_SOURCE_DIR}/
+# #                     -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+# #                     # -Wno-redefinition
+# #                     -Wno-everything
+# #                     ${BE_SOURCES} -o ${OUTPUT_WASM_FILE} 
+# #     DEPENDS ${BE_SOURCES}
+# #     COMMENT "Building RtreeRepo as a WebAssembly module"
+# #     VERBATIM
+# # )
+# # add_custom_target(build_wasm ALL
+# #     DEPENDS ${OUTPUT_WASM_FILE}
+# # )
+
+# # 使用 add_custom_command 定义 C 代码的编译
+# add_custom_command(
+#     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/c_code.o
+#     COMMAND emcc -Os --no-entry -s 
+#                         -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s 
+#                         -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
+#                         -I${CMAKE_CURRENT_SOURCE_DIR}/../
+#                         -I${CMAKE_CURRENT_SOURCE_DIR}/
+#                         -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+#                         ${C_SOURCES} -o ${CMAKE_CURRENT_BINARY_DIR}/c_code.o
+#     DEPENDS ${C_SOURCES}
+#     COMMENT "Compiling C code to object file"
+# )
+
+# # 使用 add_custom_command 定义 C++ 代码的编译
+# add_custom_command(
+#     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpp_code.o
+#     COMMAND em++ -Os --no-entry -s  
+#                           -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s 
+#                           -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
+#                           -I${CMAKE_CURRENT_SOURCE_DIR}/../
+#                           -I${CMAKE_CURRENT_SOURCE_DIR}/
+#                           -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+#                           ${CXX_SOURCES} -o ${CMAKE_CURRENT_BINARY_DIR}/cpp_code.o
+#     DEPENDS ${CXX_SOURCES}
+#     COMMENT "Compiling C++ code to object file"
+# )
+
+# # 使用 add_custom_command 将 C 和 C++ 对象文件链接为 WebAssembly 模块
+# add_custom_command(
+#     OUTPUT ${OUTPUT_WASM_FILE}
+#     COMMAND em++ -Os -o ${OUTPUT_WASM_FILE} ${CMAKE_CURRENT_BINARY_DIR}/c_code.o ${CMAKE_CURRENT_BINARY_DIR}/cpp_code.o
+#     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/c_code.o ${CMAKE_CURRENT_BINARY_DIR}/cpp_code.o
+#     COMMENT "Linking object files to create WebAssembly module"
+# )
+
+
+####################分割线1 end#######################
+# 定义自定义目标
 add_custom_target(build_wasm ALL
-    DEPENDS ${OUTPUT_WASM_FILE}
+    DEPENDS ${C_WASM_FILE} ${CXX_WASM_FILE}
 )
 # target_include_directories(build_wasm PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
 # ${CMAKE_CURRENT_SOURCE_DIR}/../
@@ -154,7 +232,8 @@ endif()
 if (EMSCRIPTEN)
   # add_executable(RtreeRepo OBJECT
   add_library(RtreeRepo
-    ${BE_SOURCES}
+    ${CXX_SOURCES}
+    ${C_SOURCES}
   )
   # 设置输出文件后缀为 .wasm
   set_target_properties(
