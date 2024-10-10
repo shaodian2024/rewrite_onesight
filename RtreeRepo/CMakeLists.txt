@@ -53,6 +53,15 @@ file (GLOB_RECURSE C_SOURCES
   ./*/*.cc
   # ${OTHER_FILES}
 )
+file (GLOB_RECURSE C_CXX_SOURCES
+  ./*.cpp
+  ./*.c
+  ./*.cc
+  ./*/*.cpp
+  ./*/*.c
+  ./*/*.cc
+  # ${OTHER_FILES}
+)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
@@ -99,15 +108,49 @@ ENDIF()
 
 IF(BUILD_FOR_BC)
 
-  add_custom_command(
-      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/axi.bc
-      COMMAND ${CMAKE_C_COMPILER} -c -emit-llvm -o $@ ${CXX_SOURCES} ${C_SOURCES}
-      DEPENDS ${CXX_SOURCES} ${C_SOURCES}
-      COMMENT "Generating LLVM bitcode for SQLite"
-  )
+# 为每个源文件生成.bc文件  
+foreach(SRC ${C_CXX_SOURCES})  
+    get_filename_component(SRC_NAME ${SRC} NAME_WE)  
+    get_filename_component(SRC_EXT ${SRC} EXT)  
+    string(REPLACE "." "_" BC_FILE_NAME "${SRC_NAME}${SRC_EXT}_bc")  
+    set(BC_FILES ${BC_FILES} ${BC_FILE_NAME}.bc)  
+  
+    # 添加自定义命令来生成.bc文件  
+    add_custom_command(  
+        OUTPUT ${BC_FILE_NAME}.bc  
+        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -emit-llvm -c ${SRC} -o ${BC_FILE_NAME}.bc                       
+        -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
+        -I${CMAKE_CURRENT_SOURCE_DIR}/../
+        -I${CMAKE_CURRENT_SOURCE_DIR}/
+        -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+        # 如果源文件是C++，需要调整编译器和可能的其他选项  
+        COMMAND_EXPAND_LISTS  
+        DEPENDS ${SRC}  
+        COMMENT "Compiling ${SRC} to LLVM Bitcode"  
+    )  
+endforeach()  
+  
+# 创建一个自定义目标来链接所有的.bc文件到一个单一的.bc文件中（可选）  
+add_custom_target(link_bitcode ALL  
+    COMMAND llvm-link ${BC_FILES} -o final.bc  
+    DEPENDS ${BC_FILES}  
+    COMMENT "Linking LLVM Bitcode files"  
+)  
+  
+# # 让'make'默认构建link_bitcode目标  
+# add_dependencies(all link_bitcode)
 
-  # 添加自定义目标以便于构建
-  add_custom_target(GenerateBC ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/axi.bc)
+
+
+  # add_custom_command(
+  #     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/axi.bc
+  #     COMMAND ${CMAKE_C_COMPILER} -c -emit-llvm -o ${CMAKE_CURRENT_BINARY_DIR}/axi.bc ${CXX_SOURCES} ${C_SOURCES}
+  #     DEPENDS ${CXX_SOURCES} ${C_SOURCES}
+  #     COMMENT "Generating LLVM bitcode for SQLite"
+  # )
+
+  # # 添加自定义目标以便于构建
+  # add_custom_target(GenerateBC ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/axi.bc)
 
   
 ENDIF()

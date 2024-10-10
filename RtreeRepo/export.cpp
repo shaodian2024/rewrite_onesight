@@ -472,6 +472,75 @@ void SplitOrderBy(const std::string& query, std::string& beforeOrderBy, std::str
 }
 } // namespace Extension
 
+extern "C" int StringForWeb3Db(const char* function_name, unsigned char* serialized_data, int db_size, int** ids_after_sort, int**lods_after_sort, int* id_count) {
+    sqlite3* db = nullptr;
+    const char* temp_db_name = "temp_database_serialized_for_web3"; // 数据库名称
+
+    auto manager = Extension::BasicExtensionManager::GetBasicExtensionManager(); 
+    manager->OpenSerializedDb(temp_db_name, serialized_data, db_size, db);
+
+    Extension::BoxQueryFunction box_query_function;
+    Extension::PlaneQueryFucntion plane_query_function;
+    int add_function_result = -1;
+    if (std::string(function_name).find("iModel_spatial_overlap_aabb") != std::string::npos) {
+        add_function_result = manager->RegisterFunction(db, &box_query_function);
+    } else if (std::string(function_name).find("onesight_spatial_overlap_aabb") != std::string::npos)  {
+        add_function_result = manager->RegisterFunction(db, &plane_query_function);
+    }
+
+    // BentleyM0200::BeSQLite::RTreeMatchFunction::QueryInfo info; // QueryInfo here is sqlite3_rtree_query_info actually.
+    if (add_function_result == SQLITE_OK) {
+        std::cout << "db AddRTreeMatchFunction success" << std::endl;
+    } else {
+        std::cout << "db AddRTreeMatchFunction failed" << std::endl;
+        manager->CloseDb(db);
+        return FAILED;
+    }
+    std::vector<int> matching_ids;
+    char* error_message;
+
+    std::string before_order_by_string;
+    std::string after_order_by_string;
+    Extension::SplitOrderBy(std::string(function_name), before_order_by_string, after_order_by_string);
+
+    auto rc = sqlite3_exec(db, before_order_by_string.c_str(), Extension::Callback, &matching_ids, &error_message);
+
+    // std::cout << "Matching ids: ";
+    // for (int id : matching_ids) {
+    //   std::cout << id << " ";
+    // }
+    // std::cout << "Matching ids end" << std::endl;
+    std::vector<int> sorted_ids;
+    std::vector<int> lod_after_sorting_id;
+    std::vector<double> order_detail_double_vec;
+    std::vector<std::string> order_detail_word_vec;
+    if (after_order_by_string.length() > 0) {
+        order_detail_double_vec = Extension::ExtractFloatingPoints(after_order_by_string);
+        order_detail_word_vec = Extension::ExtractWords(after_order_by_string);
+        if (order_detail_word_vec.size() == 4) {
+            if (!order_detail_word_vec[0].compare("screen") && !order_detail_word_vec[1].compare("height_ratio") && 
+                !order_detail_word_vec[2].compare("camera_position_threshold") && !order_detail_word_vec[3].compare("DESC") &&
+                order_detail_double_vec.size() == 6
+                ) {
+                std::cout << "computing info" << std::endl;
+                Extension::SortElems(db, matching_ids, order_detail_double_vec[0], order_detail_double_vec[1], order_detail_double_vec[2],
+                            order_detail_double_vec[3], order_detail_double_vec[4], order_detail_double_vec[5], sorted_ids, lod_after_sorting_id);
+            }
+        }
+    }
+    *ids_after_sort = (int*)malloc(matching_ids.size() * sizeof(int));
+    *lods_after_sort = (int*)malloc(matching_ids.size() * sizeof(int));
+    for (auto j = 0; j < sorted_ids.size(); j++) {
+        (*ids_after_sort)[j] = sorted_ids[j];
+        (*lods_after_sort)[j] = lod_after_sorting_id[j];
+    }
+    *id_count = static_cast<int>(sorted_ids.size());
+    manager->CloseDb(db);
+    // delete db;
+    // db = nullptr;
+    return 0;
+}
+
 extern "C" int ApplyStringToGetId(const char* function_name, Utf8CP db_name, int** ids_after_sort, int**lods_after_sort, int* id_count) {
     std::locale::global(std::locale(""));
 

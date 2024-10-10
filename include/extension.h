@@ -21,6 +21,7 @@ public:
     return &manager;
   }
   int OpenDb(const char* db_name, sqlite3*& open_db);
+  int OpenSerializedDb(const char* db_name, unsigned char* serialized_data, int db_size, sqlite3*& db);
   int CloseDb(sqlite3 *db);
   int RegisterFunction(sqlite3* db, BasicFunction* function);
   // static int Callback();
