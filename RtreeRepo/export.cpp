@@ -472,7 +472,7 @@ void SplitOrderBy(const std::string& query, std::string& beforeOrderBy, std::str
 }
 } // namespace Extension
 
-extern "C" int StringForWeb3Db(const char* function_name, unsigned char* serialized_data, int db_size, int** ids_after_sort, int**lods_after_sort, int* id_count) {
+extern "C" int StringForWeb3Db(const char* function_name, unsigned char* serialized_data, sqlite3_int64 db_size, int** ids_after_sort, int**lods_after_sort, int* id_count) {
     sqlite3* db = nullptr;
     const char* temp_db_name = "temp_database_serialized_for_web3"; // 数据库名称
 

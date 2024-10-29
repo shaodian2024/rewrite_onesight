@@ -16,7 +16,7 @@ int BasicExtensionManager::OpenDb(const char* db_name, sqlite3*& db) {
   }
 }
 
-int BasicExtensionManager::OpenSerializedDb(const char* db_name, unsigned char* serialized_data, int db_size, sqlite3*& db) {
+int BasicExtensionManager::OpenSerializedDb(const char* db_name, unsigned char* serialized_data, sqlite3_int64 db_size, sqlite3*& db) {
   const char* dbName = "my_database"; // 数据库名称
 
   // 打开或创建数据库连接

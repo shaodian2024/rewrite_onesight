@@ -1,0 +1,38 @@
+[
+{
+  "directory": "D:/onesight/web3/rewrite_onesight/RtreeRepo",
+  "command": "em++ -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 -DSQLITE_DQS=0 -DSQLITE_ENABLE_RTREE -DSQLITE_LIKE_DOESNT_MATCH_BLOBS -DSQLITE_MAX_EXPR_DEPTH=0 -DSQLITE_OMIT_DECLTYPE -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_USE_ALLOCA -DSQLITE_USE_URI -D__BENTLEYDLL_BUILD__=1 @CMakeFiles/easyRTree.dir/includes_CXX.rsp -O3 -DNDEBUG -Os -s -std=c++14 -o CMakeFiles\\easyRTree.dir\\test.cpp.o -c D:\\onesight\\web3\\rewrite_onesight\\test.cpp",
+  "file": "D:/onesight/web3/rewrite_onesight/test.cpp",
+  "output": "CMakeFiles/easyRTree.dir/test.cpp.o"
+},
+{
+  "directory": "D:/onesight/web3/rewrite_onesight/RtreeRepo/RtreeRepo",
+  "command": "em++ -DBENTLEY_CPP_MISSING_WCHAR_SUPPORT=1 -DBENTLEY_WIN32 -DBENTLEY_WINRT -DMYLIBRARY_EXPORTS=1 -DNDEBUG -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 -DSQLITE_DQS=0 -DSQLITE_ENABLE_RTREE -DSQLITE_LIKE_DOESNT_MATCH_BLOBS -DSQLITE_MAX_EXPR_DEPTH=0 -DSQLITE_OMIT_DECLTYPE -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_USE_ALLOCA -DSQLITE_USE_URI -D__BENTLEYDLL_BUILD__=1 -D__BE_SQLITE_HOST_DLL__=1 @CMakeFiles/RtreeRepo.dir/includes_CXX.rsp -O3 -DNDEBUG -Os -s -Os -s -std=c++14 -Wno-deprecated-declarations -O3 -fPIC -Os --no-entry -o CMakeFiles\\RtreeRepo.dir\\box_query.cpp.o -c D:\\onesight\\web3\\rewrite_onesight\\RtreeRepo\\box_query.cpp",
+  "file": "D:/onesight/web3/rewrite_onesight/RtreeRepo/box_query.cpp",
+  "output": "RtreeRepo/CMakeFiles/RtreeRepo.dir/box_query.cpp.o"
+},
+{
+  "directory": "D:/onesight/web3/rewrite_onesight/RtreeRepo/RtreeRepo",
+  "command": "em++ -DBENTLEY_CPP_MISSING_WCHAR_SUPPORT=1 -DBENTLEY_WIN32 -DBENTLEY_WINRT -DMYLIBRARY_EXPORTS=1 -DNDEBUG -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 -DSQLITE_DQS=0 -DSQLITE_ENABLE_RTREE -DSQLITE_LIKE_DOESNT_MATCH_BLOBS -DSQLITE_MAX_EXPR_DEPTH=0 -DSQLITE_OMIT_DECLTYPE -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_USE_ALLOCA -DSQLITE_USE_URI -D__BENTLEYDLL_BUILD__=1 -D__BE_SQLITE_HOST_DLL__=1 @CMakeFiles/RtreeRepo.dir/includes_CXX.rsp -O3 -DNDEBUG -Os -s -Os -s -std=c++14 -Wno-deprecated-declarations -O3 -fPIC -Os --no-entry -o CMakeFiles\\RtreeRepo.dir\\demo_extension.cpp.o -c D:\\onesight\\web3\\rewrite_onesight\\RtreeRepo\\demo_extension.cpp",
+  "file": "D:/onesight/web3/rewrite_onesight/RtreeRepo/demo_extension.cpp",
+  "output": "RtreeRepo/CMakeFiles/RtreeRepo.dir/demo_extension.cpp.o"
+},
+{
+  "directory": "D:/onesight/web3/rewrite_onesight/RtreeRepo/RtreeRepo",
+  "command": "em++ -DBENTLEY_CPP_MISSING_WCHAR_SUPPORT=1 -DBENTLEY_WIN32 -DBENTLEY_WINRT -DMYLIBRARY_EXPORTS=1 -DNDEBUG -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 -DSQLITE_DQS=0 -DSQLITE_ENABLE_RTREE -DSQLITE_LIKE_DOESNT_MATCH_BLOBS -DSQLITE_MAX_EXPR_DEPTH=0 -DSQLITE_OMIT_DECLTYPE -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_USE_ALLOCA -DSQLITE_USE_URI -D__BENTLEYDLL_BUILD__=1 -D__BE_SQLITE_HOST_DLL__=1 @CMakeFiles/RtreeRepo.dir/includes_CXX.rsp -O3 -DNDEBUG -Os -s -Os -s -std=c++14 -Wno-deprecated-declarations -O3 -fPIC -Os --no-entry -o CMakeFiles\\RtreeRepo.dir\\easySqlite.cpp.o -c D:\\onesight\\web3\\rewrite_onesight\\RtreeRepo\\easySqlite.cpp",
+  "file": "D:/onesight/web3/rewrite_onesight/RtreeRepo/easySqlite.cpp",
+  "output": "RtreeRepo/CMakeFiles/RtreeRepo.dir/easySqlite.cpp.o"
+},
+{
+  "directory": "D:/onesight/web3/rewrite_onesight/RtreeRepo/RtreeRepo",
+  "command": "em++ -DBENTLEY_CPP_MISSING_WCHAR_SUPPORT=1 -DBENTLEY_WIN32 -DBENTLEY_WINRT -DMYLIBRARY_EXPORTS=1 -DNDEBUG -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 -DSQLITE_DQS=0 -DSQLITE_ENABLE_RTREE -DSQLITE_LIKE_DOESNT_MATCH_BLOBS -DSQLITE_MAX_EXPR_DEPTH=0 -DSQLITE_OMIT_DECLTYPE -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_USE_ALLOCA -DSQLITE_USE_URI -D__BENTLEYDLL_BUILD__=1 -D__BE_SQLITE_HOST_DLL__=1 @CMakeFiles/RtreeRepo.dir/includes_CXX.rsp -O3 -DNDEBUG -Os -s -Os -s -std=c++14 -Wno-deprecated-declarations -O3 -fPIC -Os --no-entry -o CMakeFiles\\RtreeRepo.dir\\export.cpp.o -c D:\\onesight\\web3\\rewrite_onesight\\RtreeRepo\\export.cpp",
+  "file": "D:/onesight/web3/rewrite_onesight/RtreeRepo/export.cpp",
+  "output": "RtreeRepo/CMakeFiles/RtreeRepo.dir/export.cpp.o"
+},
+{
+  "directory": "D:/onesight/web3/rewrite_onesight/RtreeRepo/RtreeRepo",
+  "command": "em++ -DBENTLEY_CPP_MISSING_WCHAR_SUPPORT=1 -DBENTLEY_WIN32 -DBENTLEY_WINRT -DMYLIBRARY_EXPORTS=1 -DNDEBUG -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 -DSQLITE_DQS=0 -DSQLITE_ENABLE_RTREE -DSQLITE_LIKE_DOESNT_MATCH_BLOBS -DSQLITE_MAX_EXPR_DEPTH=0 -DSQLITE_OMIT_DECLTYPE -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_USE_ALLOCA -DSQLITE_USE_URI -D__BENTLEYDLL_BUILD__=1 -D__BE_SQLITE_HOST_DLL__=1 @CMakeFiles/RtreeRepo.dir/includes_CXX.rsp -O3 -DNDEBUG -Os -s -Os -s -std=c++14 -Wno-deprecated-declarations -O3 -fPIC -Os --no-entry -o CMakeFiles\\RtreeRepo.dir\\manager.cpp.o -c D:\\onesight\\web3\\rewrite_onesight\\RtreeRepo\\manager.cpp",
+  "file": "D:/onesight/web3/rewrite_onesight/RtreeRepo/manager.cpp",
+  "output": "RtreeRepo/CMakeFiles/RtreeRepo.dir/manager.cpp.o"
+}
+]

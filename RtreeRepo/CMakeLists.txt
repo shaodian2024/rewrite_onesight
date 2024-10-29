@@ -1,14 +1,27 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # project(RtreeRepoWeb3 VERSION 1.0
 #     LANGUAGES C CXX
 # )
 
-set(CMAKE_C_COMPILER ${PROJECT_SOURCE_DIR}/../emsdk/upstream/emscripten/emcc)
-set(CMAKE_CXX_COMPILER ${PROJECT_SOURCE_DIR}/../emsdk/upstream/emscripten/em++)
+set(CMAKE_C_COMPILER "D:/Unity_Hub/unity/2022.3.44f1c1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/emscripten/emcc")
+set(CMAKE_CXX_COMPILER "D:/Unity_Hub/unity/2022.3.44f1c1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/emscripten/em++")
+message("test2------------------------------------")
 project(RtreeRepoWeb3 VERSION 1.0
     LANGUAGES C CXX
 )
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sWHOLE_ARCHIVE=1")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sWHOLE_ARCHIVE=1")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sWHOLE_ARCHIVE=1")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--whole-archive")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--whole-archive")
+message("asdasdfasdfasdfadsfasdf-------------------")
+add_definitions(-DSQLITE_ENABLE_RTREE=1)
+add_definitions(-DSQLITE_ENABLE_RTREE)
+message("test------------------------------------")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s LLD_REPORT_UNDEFINED")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s LLD_REPORT_UNDEFINED")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -16,6 +29,37 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if(MSVC)
+    # 使用MSVC编译器的优化选项
+    # add_compile_options(/O2)
+    # shenghang modify /O2, need be unhidden.
+    # include(mdl.mki)
+else()
+    # 使用GCC或Clang的优化选项
+    add_compile_options(-O3)
+    add_compile_options(-fPIC)
+endif()
+set(SQLITE_COMPILE_DEFINITIONS 
+  -DSQLITE_ENABLE_RTREE=1 
+  -DSQLITE_DQS=0 
+  -DSQLITE_DEFAULT_MEMSTATUS=0
+  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS
+  -DSQLITE_MAX_EXPR_DEPTH=0
+  -DSQLITE_OMIT_DECLTYPE
+  -DSQLITE_OMIT_DEPRECATED
+  -DSQLITE_OMIT_PROGRESS_CALLBACK
+  -DSQLITE_OMIT_SHARED_CACHE
+  -DSQLITE_USE_ALLOCA
+  -DSQLITE_USE_URI
+  -DSQLITE_ENABLE_RTREE
+  -D__BENTLEYDLL_BUILD__=1
+  -O3
+  -fPIC
+)
+
+message("SQLITE_COMPILE_DEFINITIONS is ${SQLITE_COMPILE_DEFINITIONS}")
+add_definitions(${SQLITE_COMPILE_DEFINITIONS})
 
 OPTION(BUILD_FOR_WINDOWS "build dll for windows" OFF)
 OPTION(BUILD_FOR_ANDROID "build dll for android" OFF)
@@ -109,7 +153,7 @@ ENDIF()
 IF(BUILD_FOR_BC)
 
 # 为每个源文件生成.bc文件  
-foreach(SRC ${C_CXX_SOURCES})  
+foreach(SRC ${C_SOURCES})  
     get_filename_component(SRC_NAME ${SRC} NAME_WE)  
     get_filename_component(SRC_EXT ${SRC} EXT)  
     string(REPLACE "." "_" BC_FILE_NAME "${SRC_NAME}${SRC_EXT}_bc")  
@@ -118,11 +162,33 @@ foreach(SRC ${C_CXX_SOURCES})
     # 添加自定义命令来生成.bc文件  
     add_custom_command(  
         OUTPUT ${BC_FILE_NAME}.bc  
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -emit-llvm -c ${SRC} -o ${BC_FILE_NAME}.bc                       
+        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} ${SQLITE_COMPILE_DEFINITIONS} -emit-llvm -c ${SRC} -o ${BC_FILE_NAME}.bc                       
         -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
         -I${CMAKE_CURRENT_SOURCE_DIR}/../
         -I${CMAKE_CURRENT_SOURCE_DIR}/
         -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+        -DSQLITE_ENABLE_RTREE=1
+        # 如果源文件是C++，需要调整编译器和可能的其他选项  
+        COMMAND_EXPAND_LISTS  
+        DEPENDS ${SRC}  
+        COMMENT "Compiling ${SRC} to LLVM Bitcode"  
+    )  
+endforeach()  
+foreach(SRC ${CXX_SOURCES})  
+    get_filename_component(SRC_NAME ${SRC} NAME_WE)  
+    get_filename_component(SRC_EXT ${SRC} EXT)  
+    string(REPLACE "." "_" BC_FILE_NAME "${SRC_NAME}${SRC_EXT}_bc")  
+    set(BC_FILES ${BC_FILES} ${BC_FILE_NAME}.bc)  
+  
+    # 添加自定义命令来生成.bc文件  
+    add_custom_command(  
+        OUTPUT ${BC_FILE_NAME}.bc  
+        COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${SQLITE_COMPILE_DEFINITIONS} -emit-llvm -c ${SRC} -o ${BC_FILE_NAME}.bc                       
+        -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
+        -I${CMAKE_CURRENT_SOURCE_DIR}/../
+        -I${CMAKE_CURRENT_SOURCE_DIR}/
+        -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+        -DSQLITE_ENABLE_RTREE=1
         # 如果源文件是C++，需要调整编译器和可能的其他选项  
         COMMAND_EXPAND_LISTS  
         DEPENDS ${SRC}  
@@ -173,7 +239,6 @@ add_definitions(-DSQLITE_OMIT_PROGRESS_CALLBACK)
 add_definitions(-DSQLITE_OMIT_SHARED_CACHE)
 add_definitions(-DSQLITE_USE_ALLOCA)
 add_definitions(-DSQLITE_USE_URI)
-add_definitions(-DSQLITE_ENABLE_RTREE)
 add_definitions(-D__BENTLEYDLL_BUILD__=1)
 # add_definitions(-DNDEBUG)
 if(NOT uppercase_CMAKE_BUILD_TYPE)
@@ -250,4 +315,5 @@ add_definitions(-D__BE_SQLITE_HOST_DLL__=1)
 
 add_compile_definitions(BENTLEY_WIN32)
 add_compile_definitions(BENTLEY_WINRT)
+# set_target_properties(final.bc PROPERTIES LINK_FLAGS "-s EXPORTED_FUNCTIONS='[\"sqlite3_rtree_query_callback\", \"sqlite3_rtree_geometry_callback\"]'")
 # set_source_files_properties(sqlite3.c PROPERTIES LANGUAGE C)
