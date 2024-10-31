@@ -4,9 +4,13 @@ build_debug/*
 build_dynamic/*
 build_static/*
 RtreeRepo/build/*
+build_*/*
 .vs/*
 out/*
-RtreeRepo/.cache/*
+RtreeRepo/build*/*
+RtreeRepo/CmakeFiles/*
+RtreeRepo/RtreeRepo/*
+RtreeRepo/.cache/*RtreeRepo/.cache/*
 RtreeRepo/build_*/*
 Rtreerepo/RtreeRepo/*
 RtreeRepo/CMakeFiles/*
