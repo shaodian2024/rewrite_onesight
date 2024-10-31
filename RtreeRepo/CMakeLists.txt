@@ -3,10 +3,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # project(RtreeRepoWeb3 VERSION 1.0
 #     LANGUAGES C CXX
 # )
-
-set(CMAKE_C_COMPILER "D:/Unity_Hub/unity/2022.3.44f1c1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/emscripten/emcc")
-set(CMAKE_CXX_COMPILER "D:/Unity_Hub/unity/2022.3.44f1c1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/emscripten/em++")
-message("test2------------------------------------")
+OPTION(BUILD_FOR_WINDOWS "build dll for windows" OFF)
+OPTION(BUILD_FOR_ANDROID "build dll for android" OFF)
+OPTION(BUILD_FOR_APPLE "build dll for apple" OFF)
+OPTION(BUILD_FOR_WASM "build wasm for web3" OFF)
+OPTION(BUILD_FOR_BC "build bc for web3" ON)
+IF(BUILD_FOR_BC)
+  set(CMAKE_C_COMPILER "D:/Unity_Hub/unity/2022.3.44f1c1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/emscripten/emcc")
+  set(CMAKE_CXX_COMPILER "D:/Unity_Hub/unity/2022.3.44f1c1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/emscripten/em++")
+ENDIF()
+message("CMAKE_C_COMPILER is ${CMAKE_C_COMPILER} ")
+message("CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER} ")
 project(RtreeRepoWeb3 VERSION 1.0
     LANGUAGES C CXX
 )
@@ -61,11 +68,7 @@ set(SQLITE_COMPILE_DEFINITIONS
 message("SQLITE_COMPILE_DEFINITIONS is ${SQLITE_COMPILE_DEFINITIONS}")
 add_definitions(${SQLITE_COMPILE_DEFINITIONS})
 
-OPTION(BUILD_FOR_WINDOWS "build dll for windows" OFF)
-OPTION(BUILD_FOR_ANDROID "build dll for android" OFF)
-OPTION(BUILD_FOR_APPLE "build dll for apple" OFF)
-OPTION(BUILD_FOR_WASM "build wasm for web3" OFF)
-OPTION(BUILD_FOR_BC "build bc for web3" ON)
+
 IF(BUILD_FOR_WASM)
   set(CMAKE_CXX_STANDARD 14)
   message(STATUS "cmake cxx standard is modified to 14")
@@ -151,92 +154,89 @@ IF(BUILD_FOR_WASM)
 ENDIF()
 
 IF(BUILD_FOR_BC)
+  # 为每个源文件生成.bc文件  
+  foreach(SRC ${C_SOURCES})  
+      get_filename_component(SRC_NAME ${SRC} NAME_WE)  
+      get_filename_component(SRC_EXT ${SRC} EXT)  
+      string(REPLACE "." "_" BC_FILE_NAME "${SRC_NAME}${SRC_EXT}_bc")  
+      set(BC_FILES ${BC_FILES} ${BC_FILE_NAME}.bc)  
+    
+      # 添加自定义命令来生成.bc文件  
+      add_custom_command(  
+          OUTPUT ${BC_FILE_NAME}.bc  
+          COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} ${SQLITE_COMPILE_DEFINITIONS} -emit-llvm -c ${SRC} -o ${BC_FILE_NAME}.bc                       
+          -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
+          -I${CMAKE_CURRENT_SOURCE_DIR}/../
+          -I${CMAKE_CURRENT_SOURCE_DIR}/
+          -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+          -DSQLITE_ENABLE_RTREE=1
+          # 如果源文件是C++，需要调整编译器和可能的其他选项  
+          COMMAND_EXPAND_LISTS  
+          DEPENDS ${SRC}  
+          COMMENT "Compiling ${SRC} to LLVM Bitcode"  
+      )  
+  endforeach()  
+  foreach(SRC ${CXX_SOURCES})  
+      get_filename_component(SRC_NAME ${SRC} NAME_WE)  
+      get_filename_component(SRC_EXT ${SRC} EXT)  
+      string(REPLACE "." "_" BC_FILE_NAME "${SRC_NAME}${SRC_EXT}_bc")  
+      set(BC_FILES ${BC_FILES} ${BC_FILE_NAME}.bc)  
+    
+      # 添加自定义命令来生成.bc文件  
+      add_custom_command(  
+          OUTPUT ${BC_FILE_NAME}.bc  
+          COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${SQLITE_COMPILE_DEFINITIONS} -emit-llvm -c ${SRC} -o ${BC_FILE_NAME}.bc                       
+          -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
+          -I${CMAKE_CURRENT_SOURCE_DIR}/../
+          -I${CMAKE_CURRENT_SOURCE_DIR}/
+          -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+          -DSQLITE_ENABLE_RTREE=1
+          # 如果源文件是C++，需要调整编译器和可能的其他选项  
+          COMMAND_EXPAND_LISTS  
+          DEPENDS ${SRC}  
+          COMMENT "Compiling ${SRC} to LLVM Bitcode"  
+      )  
+  endforeach()  
+    
+  OPTION(BUILD_DEBUG_BC_LL "build debug bc & ll file" OFF)
+  # 创建一个自定义目标来链接所有的.bc文件到一个单一的.bc文件中（可选）  
+  IF(BUILD_DEBUG_BC_LL)
+    # 添加自定义目标以链接 Bitcode 文件
+    add_custom_target(link_bitcode ALL  
+        COMMAND llvm-link ${BC_FILES} -o final.bc  
+        DEPENDS ${BC_FILES}  
+        COMMENT "Linking LLVM Bitcode files"  
+    )
 
-# 为每个源文件生成.bc文件  
-foreach(SRC ${C_SOURCES})  
-    get_filename_component(SRC_NAME ${SRC} NAME_WE)  
-    get_filename_component(SRC_EXT ${SRC} EXT)  
-    string(REPLACE "." "_" BC_FILE_NAME "${SRC_NAME}${SRC_EXT}_bc")  
-    set(BC_FILES ${BC_FILES} ${BC_FILE_NAME}.bc)  
-  
-    # 添加自定义命令来生成.bc文件  
-    add_custom_command(  
-        OUTPUT ${BC_FILE_NAME}.bc  
-        COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} ${SQLITE_COMPILE_DEFINITIONS} -emit-llvm -c ${SRC} -o ${BC_FILE_NAME}.bc                       
-        -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
-        -I${CMAKE_CURRENT_SOURCE_DIR}/../
-        -I${CMAKE_CURRENT_SOURCE_DIR}/
-        -I${CMAKE_CURRENT_SOURCE_DIR}/../include
-        -DSQLITE_ENABLE_RTREE=1
-        # 如果源文件是C++，需要调整编译器和可能的其他选项  
-        COMMAND_EXPAND_LISTS  
-        DEPENDS ${SRC}  
-        COMMENT "Compiling ${SRC} to LLVM Bitcode"  
+    # 添加自定义命令来处理最终的编译，带上链接选项
+    add_custom_command(
+        TARGET link_bitcode POST_BUILD
+        COMMAND llvm-dis final.bc -o final.ll  # 可选：将 final.bc 转换为 LLVM IR 文件，便于调试
+        COMMAND clang final.bc -o final_executable -Wl -s EXIT_RUNTIME=1 -s ASSERTIONS=1
+        COMMENT "Compiling final.bc with additional flags"
+    )
+  ELSE()
+    add_custom_target(link_bitcode ALL  
+        COMMAND llvm-link ${BC_FILES} -o final.bc  
+        DEPENDS ${BC_FILES}  
+        COMMENT "Linking LLVM Bitcode files"  
     )  
-endforeach()  
-foreach(SRC ${CXX_SOURCES})  
-    get_filename_component(SRC_NAME ${SRC} NAME_WE)  
-    get_filename_component(SRC_EXT ${SRC} EXT)  
-    string(REPLACE "." "_" BC_FILE_NAME "${SRC_NAME}${SRC_EXT}_bc")  
-    set(BC_FILES ${BC_FILES} ${BC_FILE_NAME}.bc)  
-  
-    # 添加自定义命令来生成.bc文件  
-    add_custom_command(  
-        OUTPUT ${BC_FILE_NAME}.bc  
-        COMMAND ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${SQLITE_COMPILE_DEFINITIONS} -emit-llvm -c ${SRC} -o ${BC_FILE_NAME}.bc                       
-        -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
-        -I${CMAKE_CURRENT_SOURCE_DIR}/../
-        -I${CMAKE_CURRENT_SOURCE_DIR}/
-        -I${CMAKE_CURRENT_SOURCE_DIR}/../include
-        -DSQLITE_ENABLE_RTREE=1
-        # 如果源文件是C++，需要调整编译器和可能的其他选项  
-        COMMAND_EXPAND_LISTS  
-        DEPENDS ${SRC}  
-        COMMENT "Compiling ${SRC} to LLVM Bitcode"  
-    )  
-endforeach()  
-  
-OPTION(BUILD_DEBUG_BC_LL "build debug bc & ll file" OFF)
-# 创建一个自定义目标来链接所有的.bc文件到一个单一的.bc文件中（可选）  
-IF(BUILD_DEBUG_BC_LL)
-  # 添加自定义目标以链接 Bitcode 文件
-  add_custom_target(link_bitcode ALL  
-      COMMAND llvm-link ${BC_FILES} -o final.bc  
-      DEPENDS ${BC_FILES}  
-      COMMENT "Linking LLVM Bitcode files"  
-  )
+  ENDIF()
 
-  # 添加自定义命令来处理最终的编译，带上链接选项
-  add_custom_command(
-      TARGET link_bitcode POST_BUILD
-      COMMAND llvm-dis final.bc -o final.ll  # 可选：将 final.bc 转换为 LLVM IR 文件，便于调试
-      COMMAND clang final.bc -o final_executable -Wl -s EXIT_RUNTIME=1 -s ASSERTIONS=1
-      COMMENT "Compiling final.bc with additional flags"
-  )
-ELSE()
-  add_custom_target(link_bitcode ALL  
-      COMMAND llvm-link ${BC_FILES} -o final.bc  
-      DEPENDS ${BC_FILES}  
-      COMMENT "Linking LLVM Bitcode files"  
-  )  
-ENDIF()
-
-# # 让'make'默认构建link_bitcode目标  
-# add_dependencies(all link_bitcode)
+  # # 让'make'默认构建link_bitcode目标  
+  # add_dependencies(all link_bitcode)
 
 
 
-  # add_custom_command(
-  #     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/axi.bc
-  #     COMMAND ${CMAKE_C_COMPILER} -c -emit-llvm -o ${CMAKE_CURRENT_BINARY_DIR}/axi.bc ${CXX_SOURCES} ${C_SOURCES}
-  #     DEPENDS ${CXX_SOURCES} ${C_SOURCES}
-  #     COMMENT "Generating LLVM bitcode for SQLite"
-  # )
+    # add_custom_command(
+    #     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/axi.bc
+    #     COMMAND ${CMAKE_C_COMPILER} -c -emit-llvm -o ${CMAKE_CURRENT_BINARY_DIR}/axi.bc ${CXX_SOURCES} ${C_SOURCES}
+    #     DEPENDS ${CXX_SOURCES} ${C_SOURCES}
+    #     COMMENT "Generating LLVM bitcode for SQLite"
+    # )
 
-  # # 添加自定义目标以便于构建
-  # add_custom_target(GenerateBC ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/axi.bc)
-
-  
+    # # 添加自定义目标以便于构建
+    # add_custom_target(GenerateBC ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/axi.bc) 
 ENDIF()
 add_custom_target(build_wasm ALL
     DEPENDS ${C_WASM_FILE} ${CXX_WASM_FILE}
