@@ -6,14 +6,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 OPTION(BUILD_FOR_WINDOWS "build dll for windows" OFF)
 OPTION(BUILD_FOR_ANDROID "build dll for android" OFF)
 OPTION(BUILD_FOR_APPLE "build dll for apple" OFF)
-OPTION(BUILD_FOR_WASM "build wasm for web3" OFF)
-OPTION(BUILD_FOR_BC "build bc for web3" ON)
+OPTION(BUILD_FOR_WASM "build wasm for web3" ON)
+OPTION(BUILD_FOR_BC "build bc for web3" OFF)
 IF(BUILD_FOR_BC)
   set(CMAKE_C_COMPILER "D:/Unity_Hub/unity/2022.3.44f1c1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/emscripten/emcc")
   set(CMAKE_CXX_COMPILER "D:/Unity_Hub/unity/2022.3.44f1c1/Editor/Data/PlaybackEngines/WebGLSupport/BuildTools/Emscripten/emscripten/em++")
 ENDIF()
-message("CMAKE_C_COMPILER is ${CMAKE_C_COMPILER} ")
-message("CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER} ")
+
 project(RtreeRepoWeb3 VERSION 1.0
     LANGUAGES C CXX
 )
@@ -241,7 +240,8 @@ ENDIF()
 add_custom_target(build_wasm ALL
     DEPENDS ${C_WASM_FILE} ${CXX_WASM_FILE}
 )
-
+message("CMAKE_C_COMPILER is ${CMAKE_C_COMPILER} ")
+message("CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER} ")
 if(MSVC)
 else()
     add_compile_options(-fPIC)
