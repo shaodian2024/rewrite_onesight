@@ -6,3 +6,7 @@ build_static/*
 RtreeRepo/build/*
 .vs/*
 out/*
+RtreeRepo/.cache/*
+RtreeRepo/build_*/*
+Rtreerepo/RtreeRepo/*
+RtreeRepo/CMakeFiles/*
