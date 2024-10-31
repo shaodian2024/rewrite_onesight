@@ -196,13 +196,31 @@ foreach(SRC ${CXX_SOURCES})
     )  
 endforeach()  
   
+OPTION(BUILD_DEBUG_BC_LL "build debug bc & ll file" OFF)
 # 创建一个自定义目标来链接所有的.bc文件到一个单一的.bc文件中（可选）  
-add_custom_target(link_bitcode ALL  
-    COMMAND llvm-link ${BC_FILES} -o final.bc  
-    DEPENDS ${BC_FILES}  
-    COMMENT "Linking LLVM Bitcode files"  
-)  
-  
+IF(BUILD_DEBUG_BC_LL)
+  # 添加自定义目标以链接 Bitcode 文件
+  add_custom_target(link_bitcode ALL  
+      COMMAND llvm-link ${BC_FILES} -o final.bc  
+      DEPENDS ${BC_FILES}  
+      COMMENT "Linking LLVM Bitcode files"  
+  )
+
+  # 添加自定义命令来处理最终的编译，带上链接选项
+  add_custom_command(
+      TARGET link_bitcode POST_BUILD
+      COMMAND llvm-dis final.bc -o final.ll  # 可选：将 final.bc 转换为 LLVM IR 文件，便于调试
+      COMMAND clang final.bc -o final_executable -Wl -s EXIT_RUNTIME=1 -s ASSERTIONS=1
+      COMMENT "Compiling final.bc with additional flags"
+  )
+ELSE()
+  add_custom_target(link_bitcode ALL  
+      COMMAND llvm-link ${BC_FILES} -o final.bc  
+      DEPENDS ${BC_FILES}  
+      COMMENT "Linking LLVM Bitcode files"  
+  )  
+ENDIF()
+
 # # 让'make'默认构建link_bitcode目标  
 # add_dependencies(all link_bitcode)
 
