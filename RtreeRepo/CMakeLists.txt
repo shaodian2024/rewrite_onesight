@@ -81,7 +81,7 @@ IF(BUILD_FOR_WASM)
     set(CMAKE_CXX_COMPILER em++)
   endif()  
 ENDIF()
-file (GLOB_RECURSE BE_SOURCES 
+file (GLOB_RECURSE CXX_SOURCES 
   ./*.cpp
   # ./*.c
   # ./*.cc
@@ -308,7 +308,7 @@ if (EMSCRIPTEN)
 else()
   # 如果不是在 Emscripten 环境中，构建为普通静态库
   add_library(RtreeRepo SHARED
-    ${BE_SOURCES}
+    ${C_CXX_SOURCES}
   )
 endif()
 
