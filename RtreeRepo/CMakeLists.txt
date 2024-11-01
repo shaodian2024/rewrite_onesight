@@ -66,7 +66,18 @@ set(SQLITE_COMPILE_DEFINITIONS
 
 message("SQLITE_COMPILE_DEFINITIONS is ${SQLITE_COMPILE_DEFINITIONS}")
 add_definitions(${SQLITE_COMPILE_DEFINITIONS})
-
+add_definitions(-DSQLITE_DQS=0)
+add_definitions(-DSQLITE_DEFAULT_MEMSTATUS=0)
+add_definitions(-DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1)
+add_definitions(-DSQLITE_LIKE_DOESNT_MATCH_BLOBS)
+add_definitions(-DSQLITE_MAX_EXPR_DEPTH=0)
+add_definitions(-DSQLITE_OMIT_DECLTYPE)
+add_definitions(-DSQLITE_OMIT_DEPRECATED)
+add_definitions(-DSQLITE_OMIT_PROGRESS_CALLBACK)
+add_definitions(-DSQLITE_OMIT_SHARED_CACHE)
+add_definitions(-DSQLITE_USE_ALLOCA)
+add_definitions(-DSQLITE_USE_URI)
+add_definitions(-D__BENTLEYDLL_BUILD__=1)
 
 IF(BUILD_FOR_WASM)
   set(CMAKE_CXX_STANDARD 14)
@@ -114,42 +125,48 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 IF(BUILD_FOR_WASM)
+  # 定义输出文件
+  set(OUTPUT_WASM "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo.wasm")
 
-  # 定义要生成的输出文件
-  set(CXX_WASM_FILE "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo_CXX.wasm")
+  # 生成编译命令列表
+  set(COMPILE_FLAGS
+      -Os
+      --no-entry
+      -s SIDE_MODULE=1
+      -s WASM=1
+      -s STANDALONE_WASM
+      -I${CMAKE_CURRENT_SOURCE_DIR}/include
+      -I${CMAKE_CURRENT_SOURCE_DIR}/..
+      -I${CMAKE_CURRENT_SOURCE_DIR}/
+      -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+      -Wno-everything
+      -DSQLITE_ENABLE_RTREE=1
+      -DSQLITE_ENABLE_RTREE
+  )
+  set(SQLITE_OBJ "${CMAKE_CURRENT_BINARY_DIR}/sqlite3.o")
 
-  # 使用 add_custom_command 定义一个命令来生成 WebAssembly 模块
   add_custom_command(
-      OUTPUT ${CXX_WASM_FILE}
-      COMMAND em++ -Os --no-entry -s
-                      -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s EXPORT_NAME=RtreeRepo 
-                      -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
-                      -I${CMAKE_CURRENT_SOURCE_DIR}/../
-                      -I${CMAKE_CURRENT_SOURCE_DIR}/
-                      -I${CMAKE_CURRENT_SOURCE_DIR}/../include
-                      # -Wno-redefinition
-                      -Wno-everything
-                      ${CXX_SOURCES} -o ${CXX_WASM_FILE} 
-      DEPENDS ${CXX_SOURCES}
-      COMMENT "Building RtreeRepo C code as WebAssembly module"
+    OUTPUT ${SQLITE_OBJ}
+    COMMAND emcc -c ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c -o ${SQLITE_OBJ} -Os
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c
+    COMMENT "Compiling sqlite3.c"
+    VERBATIM
+  )
+
+  # 使用em++编译所有文件（em++可以同时处理C和C++文件）
+  add_custom_command(
+      OUTPUT ${OUTPUT_WASM}
+      COMMAND em++ ${COMPILE_FLAGS}
+              ${SQLITE_OBJ}
+              ${C_CXX_SOURCES}
+              -o ${OUTPUT_WASM}
+      DEPENDS ${C_CXX_SOURCES} ${SQLITE_OBJ}
+      COMMENT "Building RtreeRepo as single WebAssembly module"
       VERBATIM
   )
-  set(C_WASM_FILE "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo_C.wasm")
-  add_custom_command(
-      OUTPUT ${C_WASM_FILE}
-      COMMAND emcc -Os --no-entry -s
-                      -s SIDE_MODULE=1 -s WASM=1 -s STANDALONE_WASM -s EXPORT_NAME=RtreeRepo 
-                      -I${CMAKE_CURRENT_SOURCE_DIR}/include  # 添加头文件路径
-                      -I${CMAKE_CURRENT_SOURCE_DIR}/../
-                      -I${CMAKE_CURRENT_SOURCE_DIR}/
-                      -I${CMAKE_CURRENT_SOURCE_DIR}/../include
-                      # -Wno-redefinition
-                      -Wno-everything
-                      ${C_SOURCES} -o ${C_WASM_FILE} 
-      DEPENDS ${C_SOURCES}
-      COMMENT "Building RtreeRepo C code as WebAssembly module"
-      VERBATIM
-  )
+
+  # 添加自定义目标
+  add_custom_target(build_wasm ALL DEPENDS ${OUTPUT_WASM})
 ENDIF()
 
 IF(BUILD_FOR_BC)
@@ -237,9 +254,9 @@ IF(BUILD_FOR_BC)
     # # 添加自定义目标以便于构建
     # add_custom_target(GenerateBC ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/axi.bc) 
 ENDIF()
-add_custom_target(build_wasm ALL
-    DEPENDS ${C_WASM_FILE} ${CXX_WASM_FILE}
-)
+# add_custom_target(build_wasm ALL
+#     DEPENDS ${C_WASM_FILE} ${CXX_WASM_FILE}
+# )
 message("CMAKE_C_COMPILER is ${CMAKE_C_COMPILER} ")
 message("CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER} ")
 if(MSVC)
