@@ -16,4 +16,5 @@ extern "C" {
     int**lods_after_sort, int* id_count);
   EMSCRIPTEN_KEEPALIVE int ApplyStringToGetId(const char* function, Utf8CP db_name, int** id_array, int** lods_after_sort, int* id_count);
   EMSCRIPTEN_KEEPALIVE void FreeIntArrayMemory(int* id_array);
+  EMSCRIPTEN_KEEPALIVE void TestFunction() {;}
 }

@@ -10789,7 +10789,8 @@ SQLITE_API int sqlite3_deserialize(
 # undef double
 #endif
 
-#if defined(__wasi__)
+// #if defined(__wasi__)
+#if 0
 # undef SQLITE_WASI
 # define SQLITE_WASI 1
 # undef SQLITE_OMIT_WAL

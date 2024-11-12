@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
   int *pRes = 0;
   Extension::CircleExtensionManager::RegisterCircleFunction(db, pRes);
   if (pRes != 0) {
-    std::cout << "find pRes" << pRes << std::endl;
+    printf("find pRes %d", pRes);
   }
   std::string command;
 
@@ -50,11 +50,11 @@ int main(int argc, char* argv[]) {
     sqlite3_close(db);
     return 1;
   }
-  std::cout << "Matching ids: ";
+  printf("Matching ids: \n");
   for (int id : matching_ids) {
-    std::cout << id << " ";
+    printf("%d ");
   }
-  std::cout << std::endl;
+  printf("\n");
   
   sqlite3_close(db);
   return 0;

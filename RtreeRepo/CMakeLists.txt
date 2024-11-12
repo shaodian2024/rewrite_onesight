@@ -36,16 +36,16 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(MSVC)
-    # 使用MSVC编译器的优化选项
-    # add_compile_options(/O2)
-    # shenghang modify /O2, need be unhidden.
-    # include(mdl.mki)
-else()
-    # 使用GCC或Clang的优化选项
-    add_compile_options(-O3)
-    add_compile_options(-fPIC)
-endif()
+# if(MSVC)
+#     # 使用MSVC编译器的优化选项
+#     # add_compile_options(/O2)
+#     # shenghang modify /O2, need be unhidden.
+#     # include(mdl.mki)
+# else()
+#     # 使用GCC或Clang的优化选项
+#     add_compile_options(-O3)
+#     add_compile_options(-fPIC)
+# endif()
 set(SQLITE_COMPILE_DEFINITIONS 
   -DSQLITE_ENABLE_RTREE=1 
   -DSQLITE_DQS=0 
@@ -60,31 +60,19 @@ set(SQLITE_COMPILE_DEFINITIONS
   -DSQLITE_USE_URI
   -DSQLITE_ENABLE_RTREE
   -D__BENTLEYDLL_BUILD__=1
-  -O3
-  -fPIC
+  # -O3
+  # -fPIC
 )
 
 message("SQLITE_COMPILE_DEFINITIONS is ${SQLITE_COMPILE_DEFINITIONS}")
 add_definitions(${SQLITE_COMPILE_DEFINITIONS})
-add_definitions(-DSQLITE_DQS=0)
-add_definitions(-DSQLITE_DEFAULT_MEMSTATUS=0)
-add_definitions(-DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1)
-add_definitions(-DSQLITE_LIKE_DOESNT_MATCH_BLOBS)
-add_definitions(-DSQLITE_MAX_EXPR_DEPTH=0)
-add_definitions(-DSQLITE_OMIT_DECLTYPE)
-add_definitions(-DSQLITE_OMIT_DEPRECATED)
-add_definitions(-DSQLITE_OMIT_PROGRESS_CALLBACK)
-add_definitions(-DSQLITE_OMIT_SHARED_CACHE)
-add_definitions(-DSQLITE_USE_ALLOCA)
-add_definitions(-DSQLITE_USE_URI)
-add_definitions(-D__BENTLEYDLL_BUILD__=1)
 
 IF(BUILD_FOR_WASM)
   set(CMAKE_CXX_STANDARD 14)
   message(STATUS "cmake cxx standard is modified to 14")
   set(CMAKE_TOOLCHAIN_FILE "${PROJECT_SOURCE_DIR}/../emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
   message(STATUS "WEB3_CMAKE_TOOL_CHAIN is ${CMAKE_TOOLCHAIN_FILE}")
-  include_directories("${PROJECT_SOURCE_DIR}/../emsdk/upstream/emscripten/cache/sysroot/include")
+  # include_directories("${PROJECT_SOURCE_DIR}/../emsdk/upstream/emscripten/cache/sysroot/include")
   
   if(EMSCRIPTEN)
     add_compile_options(-Wno-deprecated-declarations)
@@ -94,21 +82,14 @@ IF(BUILD_FOR_WASM)
 ENDIF()
 file (GLOB_RECURSE CXX_SOURCES 
   ./*.cpp
-  # ./*.c
-  # ./*.cc
   ./*/*.cpp
-  # ./*/*.c
-  # ./*/*.cc
-  # ${OTHER_FILES}
+  # axi.cpp
 )
 file (GLOB_RECURSE C_SOURCES 
-  # ./*.cpp
   ./*.c
   ./*.cc
-  # ./*/*.cpp
   ./*/*.c
   ./*/*.cc
-  # ${OTHER_FILES}
 )
 file (GLOB_RECURSE C_CXX_SOURCES
   ./*.cpp
@@ -117,7 +98,6 @@ file (GLOB_RECURSE C_CXX_SOURCES
   ./*/*.cpp
   ./*/*.c
   ./*/*.cc
-  # ${OTHER_FILES}
 )
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../)
@@ -125,16 +105,49 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 IF(BUILD_FOR_WASM)
-  # 定义输出文件
   set(OUTPUT_WASM "${CMAKE_CURRENT_BINARY_DIR}/RtreeRepo.wasm")
-
+  set(SQLITE_COMPILE_FLAGS
+  -Oz 
+	-DSQLITE_OMIT_LOAD_EXTENSION 
+	-DSQLITE_DISABLE_LFS 
+	-DSQLITE_ENABLE_FTS3 
+	-DSQLITE_ENABLE_FTS3_PARENTHESIS 
+	-DSQLITE_THREADSAFE=0 
+	-DSQLITE_ENABLE_NORMALIZE
+  -s RESERVED_FUNCTION_POINTERS=64 
+  -s ALLOW_TABLE_GROWTH=1 
+  -s EXPORTED_FUNCTIONS=@${CMAKE_SOURCE_DIR}/exported_functions.json 
+  -s EXPORTED_RUNTIME_METHODS=@${CMAKE_SOURCE_DIR}/exported_runtime_methods.json 
+  -s SINGLE_FILE=0 
+  -s NODEJS_CATCH_EXIT=0       # 禁用Node.js的退出捕获
+  -s NODEJS_CATCH_REJECTION=0 
+  -s STACK_SIZE=5MB
+  -s MODULARIZE=1
+  )
+  set(EMFLAGS_WASM
+	  -s WASM=1
+	  -s ALLOW_MEMORY_GROWTH=1
+  )
+  set(EMFLAGS_OPTIMIZED
+	  -Oz
+	  -flto
+	  --closure 1
+  )
   # 生成编译命令列表
   set(COMPILE_FLAGS
-      -Os
-      --no-entry
-      -s SIDE_MODULE=1
-      -s WASM=1
-      -s STANDALONE_WASM
+      -fPIC
+      # -s STANDALONE_WASM=0  # 非独立WASM模式
+      ${EMFLAGS_WASM}             # 生成WASM
+      ${EMFLAGS_OPTIMIZED}
+      # -sNO_EXIT_RUNTIME=1  # 减少运行时依赖
+      -sENVIRONMENT='web'  # 指定web环境
+      # 可选：禁用文件系统
+      # -sFILESYSTEM=0
+      # 可选：禁用异常处理
+      -fno-exceptions
+      -sSINGLE_FILE=0
+      # -s EXPORTED_FUNCTIONS='["_StringForWeb3Db","_ApplyStringToGetId","_FreeIntArrayMemory"]'
+      # -s STANDALONE_WASM=0
       -I${CMAKE_CURRENT_SOURCE_DIR}/include
       -I${CMAKE_CURRENT_SOURCE_DIR}/..
       -I${CMAKE_CURRENT_SOURCE_DIR}/
@@ -143,11 +156,45 @@ IF(BUILD_FOR_WASM)
       -DSQLITE_ENABLE_RTREE=1
       -DSQLITE_ENABLE_RTREE
   )
+  set(EMFLAGS
+	-s RESERVED_FUNCTION_POINTERS=64
+	-s ALLOW_TABLE_GROWTH=1 
+	-s EXPORTED_FUNCTIONS=@${CMAKE_SOURCE_DIR}/exported_functions.json 
+	-s EXPORTED_RUNTIME_METHODS=@${CMAKE_SOURCE_DIR}/exported_runtime_methods.json 
+	-s SINGLE_FILE=0 
+	-s NODEJS_CATCH_EXIT=0 
+	-s NODEJS_CATCH_REJECTION=0 
+	-s STACK_SIZE=5MB
+  )
+  set(FINAL_COMPILE_FLAGS
+    # -Oz
+    # -Wno-pointer-sign
+    # -Wno-incompatible-pointer-types
+    # -Wno-int-conversion
+    # -fno-strict-aliasing
+    # -s ASSERTIONS=1
+    # ${SQLITE_COMPILE_FLAGS}
+    # ${COMPILE_FLAGS}  # 包含之前定义的编译标志
+  )
   set(SQLITE_OBJ "${CMAKE_CURRENT_BINARY_DIR}/sqlite3.o")
-
+  set(INCLUDESDIRS
+    -I${CMAKE_CURRENT_SOURCE_DIR}/include
+    -I${CMAKE_CURRENT_SOURCE_DIR}/..
+    -I${CMAKE_CURRENT_SOURCE_DIR}/
+    -I${CMAKE_CURRENT_SOURCE_DIR}/../include
+  )
   add_custom_command(
     OUTPUT ${SQLITE_OBJ}
-    COMMAND emcc -c ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c -o ${SQLITE_OBJ} -Os
+    COMMAND emcc -c ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c -o ${SQLITE_OBJ}
+            # ${FINAL_COMPILE_FLAGS}
+            -s STANDALONE_WASM=1 
+            -s NO_FILESYSTEM=1
+            # -s ONLY_MY_CODE=1 
+            # -target wasm32-freestanding
+            ${EMFLAGS}
+            ${EMFLAGS_WASM}             # 生成WASM
+            ${EMFLAGS_OPTIMIZED}
+            # ${INCLUDESDIRS}
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c
     COMMENT "Compiling sqlite3.c"
     VERBATIM
@@ -156,16 +203,29 @@ IF(BUILD_FOR_WASM)
   # 使用em++编译所有文件（em++可以同时处理C和C++文件）
   add_custom_command(
       OUTPUT ${OUTPUT_WASM}
-      COMMAND em++ ${COMPILE_FLAGS}
+      COMMAND em++ 
+              # ${FINAL_COMPILE_FLAGS}
+              # -s SIDE_MODULE=1
+              ${EMFLAGS}
+              ${EMFLAGS_WASM}             # 生成WASM
+              ${EMFLAGS_OPTIMIZED}
+              -s STANDALONE_WASM=1 
+              -s NO_FILESYSTEM=1
+              # -s ONLY_MY_CODE=1 
+              # -target wasm32-freestanding
+              --no-entry
+              -s MAIN_MODULE=1
               ${SQLITE_OBJ}
-              ${C_CXX_SOURCES}
-              -o ${OUTPUT_WASM}
-      DEPENDS ${C_CXX_SOURCES} ${SQLITE_OBJ}
+              ${INCLUDESDIRS}
+              ${CXX_SOURCES}
+              -o ${OUTPUT_WASM} 
+      DEPENDS ${CXX_SOURCES} ${SQLITE_OBJ}
       COMMENT "Building RtreeRepo as single WebAssembly module"
       VERBATIM
   )
 
   # 添加自定义目标
+  # add_custom_target(build_wasm ALL DEPENDS ${SQLITE_OBJ})
   add_custom_target(build_wasm ALL DEPENDS ${OUTPUT_WASM})
 ENDIF()
 

@@ -1,12 +1,14 @@
 #define _USE_MATH_DEFINES
 #include "extension.h"
-#include <iostream>
+#include <stdio.h>
 #include <vector>
 #include "sqlite3.h"
 #include "export.h"
 #include <cmath>
 #include <algorithm>
 #include <regex>
+#define _TRY_WASM_ 1
+#if !_TRY_WASM_
 namespace Extension {
 struct DPoint3d
 {
@@ -357,7 +359,8 @@ void SortElems(
         sqlite3_stmt* stmt;
         std::string sql = "SELECT * FROM DB_SpatialIndex WHERE EleId = ?";
         if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-            std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
+            printf("Failed to prepare statement: %s\n", sqlite3_errmsg(db));
+            // std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
             continue;
         }
         sqlite3_bind_int(stmt, 1, id);
@@ -428,7 +431,8 @@ void SortElems(
 {
     sqlite3* db;
     if (sqlite3_open(databasePath.c_str(), &db)) {
-        std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
+        printf("Can't open database: %s\n", sqlite3_errmsg(db));
+        // std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
         return;
     }
     SortElems(db, idArray, cx, cy, cz, th1, th2, th3, sortedIdArray, lodArray);
@@ -490,9 +494,11 @@ extern "C" int StringForWeb3Db(const char* function_name, unsigned char* seriali
 
     // BentleyM0200::BeSQLite::RTreeMatchFunction::QueryInfo info; // QueryInfo here is sqlite3_rtree_query_info actually.
     if (add_function_result == SQLITE_OK) {
-        std::cout << "db AddRTreeMatchFunction success" << std::endl;
+        printf("db AddRTreeMatchFunction success \n");
+        // std::cout << "db AddRTreeMatchFunction success" << std::endl;
     } else {
-        std::cout << "db AddRTreeMatchFunction failed" << std::endl;
+        printf("db AddRTreeMatchFunction failed \n");
+        // std::cout << "db AddRTreeMatchFunction failed" << std::endl;
         manager->CloseDb(db);
         return FAILED;
     }
@@ -522,7 +528,8 @@ extern "C" int StringForWeb3Db(const char* function_name, unsigned char* seriali
                 !order_detail_word_vec[2].compare("camera_position_threshold") && !order_detail_word_vec[3].compare("DESC") &&
                 order_detail_double_vec.size() == 6
                 ) {
-                std::cout << "computing info" << std::endl;
+                printf("computing info \n");
+                // std::cout << "computing info" << std::endl;
                 Extension::SortElems(db, matching_ids, order_detail_double_vec[0], order_detail_double_vec[1], order_detail_double_vec[2],
                             order_detail_double_vec[3], order_detail_double_vec[4], order_detail_double_vec[5], sorted_ids, lod_after_sorting_id);
             }
@@ -559,9 +566,11 @@ extern "C" int ApplyStringToGetId(const char* function_name, Utf8CP db_name, int
 
     // BentleyM0200::BeSQLite::RTreeMatchFunction::QueryInfo info; // QueryInfo here is sqlite3_rtree_query_info actually.
     if (add_function_result == SQLITE_OK) {
-        std::cout << "db AddRTreeMatchFunction success" << std::endl;
+        printf("db AddRTreeMatchFunction success \n");
+        // std::cout << "db AddRTreeMatchFunction success" << std::endl;
     } else {
-        std::cout << "db AddRTreeMatchFunction failed" << std::endl;
+        printf("db AddRTreeMatchFunction failed \n");
+        // std::cout << "db AddRTreeMatchFunction failed" << std::endl;
         manager->CloseDb(db);
         return FAILED;
     }
@@ -591,7 +600,8 @@ extern "C" int ApplyStringToGetId(const char* function_name, Utf8CP db_name, int
                 !order_detail_word_vec[2].compare("camera_position_threshold") && !order_detail_word_vec[3].compare("DESC") &&
                 order_detail_double_vec.size() == 6
                 ) {
-                std::cout << "computing info" << std::endl;
+                printf("computing info \n");
+                // std::cout << "computing info" << std::endl;
                 Extension::SortElems(db, matching_ids, order_detail_double_vec[0], order_detail_double_vec[1], order_detail_double_vec[2],
                             order_detail_double_vec[3], order_detail_double_vec[4], order_detail_double_vec[5], sorted_ids, lod_after_sorting_id);
             }
@@ -615,3 +625,14 @@ extern "C" int ApplyStringToGetId(const char* function_name, Utf8CP db_name, int
 extern "C" void FreeIntArrayMemory(int* id_array) {
     free(id_array);
 }
+#else
+extern "C" void FreeIntArrayMemory(int* id_array) {
+    ;
+}
+extern "C" int StringForWeb3Db(const char* function_name, unsigned char* serialized_data, sqlite3_int64 db_size, int** ids_after_sort, int**lods_after_sort, int* id_count) {
+    return 1;
+}
+extern "C" int ApplyStringToGetId(const char* function_name, Utf8CP db_name, int** ids_after_sort, int**lods_after_sort, int* id_count) {
+    return 0;
+}
+#endif
