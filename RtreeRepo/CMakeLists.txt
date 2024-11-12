@@ -183,22 +183,22 @@ IF(BUILD_FOR_WASM)
     -I${CMAKE_CURRENT_SOURCE_DIR}/
     -I${CMAKE_CURRENT_SOURCE_DIR}/../include
   )
-  add_custom_command(
-    OUTPUT ${SQLITE_OBJ}
-    COMMAND emcc -c ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c -o ${SQLITE_OBJ}
-            # ${FINAL_COMPILE_FLAGS}
-            -s STANDALONE_WASM=1 
-            -s NO_FILESYSTEM=1
-            # -s ONLY_MY_CODE=1 
-            # -target wasm32-freestanding
-            ${EMFLAGS}
-            ${EMFLAGS_WASM}             # 生成WASM
-            ${EMFLAGS_OPTIMIZED}
-            # ${INCLUDESDIRS}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c
-    COMMENT "Compiling sqlite3.c"
-    VERBATIM
-  )
+  # add_custom_command(
+  #   OUTPUT ${SQLITE_OBJ}
+  #   COMMAND emcc -c ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c -o ${SQLITE_OBJ}
+  #           # ${FINAL_COMPILE_FLAGS}
+  #           -s STANDALONE_WASM=1 
+  #           -s NO_FILESYSTEM=1
+  #           # -s ONLY_MY_CODE=1 
+  #           # -target wasm32-freestanding
+  #           ${EMFLAGS}
+  #           ${EMFLAGS_WASM}             # 生成WASM
+  #           ${EMFLAGS_OPTIMIZED}
+  #           # ${INCLUDESDIRS}
+  #   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3.c
+  #   COMMENT "Compiling sqlite3.c"
+  #   VERBATIM
+  # )
 
   # 使用em++编译所有文件（em++可以同时处理C和C++文件）
   add_custom_command(
@@ -214,12 +214,12 @@ IF(BUILD_FOR_WASM)
               # -s ONLY_MY_CODE=1 
               # -target wasm32-freestanding
               --no-entry
-              -s MAIN_MODULE=1
-              ${SQLITE_OBJ}
+              # -s MAIN_MODULE=1
+              # ${SQLITE_OBJ}
               ${INCLUDESDIRS}
               ${CXX_SOURCES}
               -o ${OUTPUT_WASM} 
-      DEPENDS ${CXX_SOURCES} ${SQLITE_OBJ}
+      DEPENDS ${CXX_SOURCES}  # ${SQLITE_OBJ}
       COMMENT "Building RtreeRepo as single WebAssembly module"
       VERBATIM
   )
@@ -319,96 +319,96 @@ ENDIF()
 # )
 message("CMAKE_C_COMPILER is ${CMAKE_C_COMPILER} ")
 message("CMAKE_CXX_COMPILER is ${CMAKE_CXX_COMPILER} ")
-if(MSVC)
-else()
-    add_compile_options(-fPIC)
-endif()
-add_definitions(-DSQLITE_DQS=0)
-add_definitions(-DSQLITE_DEFAULT_MEMSTATUS=0)
-add_definitions(-DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1)
-add_definitions(-DSQLITE_LIKE_DOESNT_MATCH_BLOBS)
-add_definitions(-DSQLITE_MAX_EXPR_DEPTH=0)
-add_definitions(-DSQLITE_OMIT_DECLTYPE)
-add_definitions(-DSQLITE_OMIT_DEPRECATED)
-add_definitions(-DSQLITE_OMIT_PROGRESS_CALLBACK)
-add_definitions(-DSQLITE_OMIT_SHARED_CACHE)
-add_definitions(-DSQLITE_USE_ALLOCA)
-add_definitions(-DSQLITE_USE_URI)
-add_definitions(-D__BENTLEYDLL_BUILD__=1)
-# add_definitions(-DNDEBUG)
-if(NOT uppercase_CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RELEASE)
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os -s")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os -s")
-elseif(uppercase_CMAKE_BUILD_TYPE MATCHES "DEBUG")
-  add_definitions(-DDEBUG)
-endif()
-message (STATUS "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
-message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
+# if(MSVC)
+# else()
+#     add_compile_options(-fPIC)
+# endif()
+# add_definitions(-DSQLITE_DQS=0)
+# add_definitions(-DSQLITE_DEFAULT_MEMSTATUS=0)
+# add_definitions(-DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1)
+# add_definitions(-DSQLITE_LIKE_DOESNT_MATCH_BLOBS)
+# add_definitions(-DSQLITE_MAX_EXPR_DEPTH=0)
+# add_definitions(-DSQLITE_OMIT_DECLTYPE)
+# add_definitions(-DSQLITE_OMIT_DEPRECATED)
+# add_definitions(-DSQLITE_OMIT_PROGRESS_CALLBACK)
+# add_definitions(-DSQLITE_OMIT_SHARED_CACHE)
+# add_definitions(-DSQLITE_USE_ALLOCA)
+# add_definitions(-DSQLITE_USE_URI)
+# add_definitions(-D__BENTLEYDLL_BUILD__=1)
+# # add_definitions(-DNDEBUG)
+# if(NOT uppercase_CMAKE_BUILD_TYPE)
+#   set(CMAKE_BUILD_TYPE RELEASE)
+#   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os -s")
+#   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os -s")
+# elseif(uppercase_CMAKE_BUILD_TYPE MATCHES "DEBUG")
+#   add_definitions(-DDEBUG)
+# endif()
+# message (STATUS "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
+# message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 
-if(MSVC)
-  set (OTHER_FILES    
-    ./sqlite3.h
-    ./sqlite3ext.h
-  )
-else()
-  set (OTHER_FILES )
-endif()
+# if(MSVC)
+#   set (OTHER_FILES    
+#     ./sqlite3.h
+#     ./sqlite3ext.h
+#   )
+# else()
+#   set (OTHER_FILES )
+# endif()
 
 
 
-if (EMSCRIPTEN)
-  # add_executable(RtreeRepo OBJECT
-  add_library(RtreeRepo
-    ${CXX_SOURCES}
-    ${C_SOURCES}
-  )
-  # 设置输出文件后缀为 .wasm
-  set_target_properties(
-    RtreeRepo PROPERTIES OUTPUT_NAME "RtreeRepo"
-    # SUFFIX ".wasm"
-  )
+# if (EMSCRIPTEN)
+#   # add_executable(RtreeRepo OBJECT
+#   add_library(RtreeRepo
+#     ${CXX_SOURCES}
+#     ${C_SOURCES}
+#   )
+#   # 设置输出文件后缀为 .wasm
+#   set_target_properties(
+#     RtreeRepo PROPERTIES OUTPUT_NAME "RtreeRepo"
+#     # SUFFIX ".wasm"
+#   )
   
-  target_compile_options(RtreeRepo PRIVATE 
-    -Os 
-    --no-entry
-  )
+#   target_compile_options(RtreeRepo PRIVATE 
+#     -Os 
+#     --no-entry
+#   )
 
-  # target_link_options(RtreeRepo PRIVATE 
-  #     -s EXPORTED_FUNCTIONS='["_ApplyStringToGetId","_FreeIntArrayMemory"]'
-  #     -s SIDE_MODULE=1
-  #     -s WASM=1
-  #     -s STANDALONE_WASM
-  #     -s EXPORT_NAME=RtreeRepo
-  # )
+#   # target_link_options(RtreeRepo PRIVATE 
+#   #     -s EXPORTED_FUNCTIONS='["_ApplyStringToGetId","_FreeIntArrayMemory"]'
+#   #     -s SIDE_MODULE=1
+#   #     -s WASM=1
+#   #     -s STANDALONE_WASM
+#   #     -s EXPORT_NAME=RtreeRepo
+#   # )
 
-else()
-  # 如果不是在 Emscripten 环境中，构建为普通静态库
-  add_library(RtreeRepo SHARED
-    ${C_CXX_SOURCES}
-  )
-endif()
+# else()
+#   # 如果不是在 Emscripten 环境中，构建为普通静态库
+#   add_library(RtreeRepo SHARED
+#     ${C_CXX_SOURCES}
+#   )
+# endif()
 
-add_definitions(-DMYLIBRARY_EXPORTS=1)
-add_definitions(-DBENTLEY_CPP_MISSING_WCHAR_SUPPORT=1)
-add_definitions(-DNDEBUG)
-add_definitions(-DSQLITE_DQS=0)
-add_definitions(-DSQLITE_DEFAULT_MEMSTATUS=0)
-add_definitions(-DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1)
-add_definitions(-DSQLITE_LIKE_DOESNT_MATCH_BLOBS)
-add_definitions(-DSQLITE_MAX_EXPR_DEPTH=0)
-add_definitions(-DSQLITE_OMIT_DECLTYPE)
-add_definitions(-DSQLITE_OMIT_DEPRECATED)
-add_definitions(-DSQLITE_OMIT_PROGRESS_CALLBACK)
-add_definitions(-DSQLITE_OMIT_SHARED_CACHE)
-add_definitions(-DSQLITE_USE_ALLOCA)
-add_definitions(-DSQLITE_USE_URI)
-add_definitions(-DSQLITE_ENABLE_RTREE)
-add_definitions(-DNDEBUG)
-add_definitions(-D__BENTLEYDLL_BUILD__=1)
-add_definitions(-D__BE_SQLITE_HOST_DLL__=1)
+# add_definitions(-DMYLIBRARY_EXPORTS=1)
+# add_definitions(-DBENTLEY_CPP_MISSING_WCHAR_SUPPORT=1)
+# add_definitions(-DNDEBUG)
+# add_definitions(-DSQLITE_DQS=0)
+# add_definitions(-DSQLITE_DEFAULT_MEMSTATUS=0)
+# add_definitions(-DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1)
+# add_definitions(-DSQLITE_LIKE_DOESNT_MATCH_BLOBS)
+# add_definitions(-DSQLITE_MAX_EXPR_DEPTH=0)
+# add_definitions(-DSQLITE_OMIT_DECLTYPE)
+# add_definitions(-DSQLITE_OMIT_DEPRECATED)
+# add_definitions(-DSQLITE_OMIT_PROGRESS_CALLBACK)
+# add_definitions(-DSQLITE_OMIT_SHARED_CACHE)
+# add_definitions(-DSQLITE_USE_ALLOCA)
+# add_definitions(-DSQLITE_USE_URI)
+# add_definitions(-DSQLITE_ENABLE_RTREE)
+# add_definitions(-DNDEBUG)
+# add_definitions(-D__BENTLEYDLL_BUILD__=1)
+# add_definitions(-D__BE_SQLITE_HOST_DLL__=1)
 
-add_compile_definitions(BENTLEY_WIN32)
-add_compile_definitions(BENTLEY_WINRT)
+# add_compile_definitions(BENTLEY_WIN32)
+# add_compile_definitions(BENTLEY_WINRT)
 # set_target_properties(final.bc PROPERTIES LINK_FLAGS "-s EXPORTED_FUNCTIONS='[\"sqlite3_rtree_query_callback\", \"sqlite3_rtree_geometry_callback\"]'")
 # set_source_files_properties(sqlite3.c PROPERTIES LANGUAGE C)

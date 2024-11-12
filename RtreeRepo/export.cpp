@@ -1,5 +1,7 @@
 #define _USE_MATH_DEFINES
 #include "extension.h"
+#define _TRY_WASM_ 1
+#if !_TRY_WASM_
 #include <stdio.h>
 #include <vector>
 #include "sqlite3.h"
@@ -7,8 +9,6 @@
 #include <cmath>
 #include <algorithm>
 #include <regex>
-#define _TRY_WASM_ 1
-#if !_TRY_WASM_
 namespace Extension {
 struct DPoint3d
 {
@@ -626,13 +626,13 @@ extern "C" void FreeIntArrayMemory(int* id_array) {
     free(id_array);
 }
 #else
-extern "C" void FreeIntArrayMemory(int* id_array) {
+extern "C" void FreeIntArrayMemory() {
     ;
 }
-extern "C" int StringForWeb3Db(const char* function_name, unsigned char* serialized_data, sqlite3_int64 db_size, int** ids_after_sort, int**lods_after_sort, int* id_count) {
+extern "C" int StringForWeb3Db() {
     return 1;
 }
-extern "C" int ApplyStringToGetId(const char* function_name, Utf8CP db_name, int** ids_after_sort, int**lods_after_sort, int* id_count) {
+extern "C" int ApplyStringToGetId() {
     return 0;
 }
 #endif

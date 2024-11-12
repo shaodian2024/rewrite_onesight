@@ -41,10 +41,9 @@
     "_sqlite3_result_int",
     "_sqlite3_result_int64",
     "_sqlite3_result_error",
-    "_sqlite3_aggregate_context", 
+    "_sqlite3_aggregate_context",
     "_StringForWeb3Db",
     "_ApplyStringToGetId",
-    "_FreeIntArrayMemory",
-    "_TestFunction"
+    "_FreeIntArrayMemory"
 ]
     
