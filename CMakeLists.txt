@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.29)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(RtreeRepo VERSION 1.0
     LANGUAGES C CXX
@@ -53,7 +53,7 @@ ELSEIF(BUILD_FOR_APPLE)
     # 设置visionOS作为目标平台
     set(CMAKE_SYSTEM_NAME "visionOS")
     message(STATUS "BUILD FOR visionOS")
-    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
+#    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
     # 设置最低部署版本
     set(CMAKE_OSX_DEPLOYMENT_TARGET "1.0")  # visionOS版本
     # visionOS只支持arm64架构
@@ -68,7 +68,7 @@ ELSEIF(BUILD_FOR_APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
   ENDIF()
 ENDIF()
-
+message("CMAKE_TOOLCHAIN is ${CMAKE_TOOLCHAIN_FILE}")
 IF(BUILD_FOR_ANDROID)
   message(STATUS "BUILD FOR ANDROID")
   add_definitions(-DANDROID)
