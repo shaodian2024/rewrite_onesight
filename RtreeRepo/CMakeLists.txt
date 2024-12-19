@@ -23,10 +23,35 @@ add_library(RtreeRepo STATIC
 # add_library(RtreeRepo
   ${BE_SOURCES}
 )
-set_target_properties(RtreeRepo PROPERTIES
-  ARCHITECTURES "arm64"
-  XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "12.0"  # 设置iOS部署目标
-)
+
+if(BUILD_FOR_macOS)
+  message("subdir build for macOS")
+  set_target_properties(RtreeRepo PROPERTIES
+    MACOSX_BUNDLE TRUE
+    CMAKE_OSX_ARCHITECTURES "arm64;x86_64"  # 支持Universal Binary
+    CMAKE_OSX_DEPLOYMENT_TARGET "11.0"      # macOS最低支持版本
+    MACOSX_BUNDLE_BUNDLE_NAME "RtreeRepo"
+    MACOSX_BUNDLE_BUNDLE_IDENTIFIER "com.onesight.RtreeRepo"
+  )
+elseif(BUILD_FOR_visionOS)
+  message("subdir build for visionOS")
+  set_target_properties(RtreeRepo PROPERTIES
+    ARCHITECTURES "arm64"
+    MACOSX_BUNDLE TRUE
+    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.onesight.RtreeRepo"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "com.onesight.RtreeRepo"
+    MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+    MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+    XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
+    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
+  )
+elseif(BUILD_FOR_IOS)
+  message("subdir build for IOS")
+  set_target_properties(RtreeRepo PROPERTIES
+    ARCHITECTURES "arm64"
+    XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "12.0"
+  )
+endif()
   # link_directories(${PROJECT_SOURCE_DIR}/third_party)
   # find_library(SHLWAPI_LIBRARY ShLwApi PATHS ${PROJECT_SOURCE_DIR}/third_party)
   # target_link_libraries(RtreeRepo ${SHLWAPI_LIBRARY})
