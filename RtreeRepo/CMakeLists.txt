@@ -25,7 +25,7 @@ add_library(RtreeRepo STATIC
 )
 
 if(BUILD_FOR_macOS)
-  message("subdir build for macOS")
+  message(STATUS "subdir build for macOS")
   set_target_properties(RtreeRepo PROPERTIES
     MACOSX_BUNDLE TRUE
     CMAKE_OSX_ARCHITECTURES "arm64;x86_64"  # 支持Universal Binary
@@ -34,7 +34,7 @@ if(BUILD_FOR_macOS)
     MACOSX_BUNDLE_BUNDLE_IDENTIFIER "com.onesight.RtreeRepo"
   )
 elseif(BUILD_FOR_visionOS)
-  message("subdir build for visionOS")
+  message(STATUS "subdir build for visionOS")
   set_target_properties(RtreeRepo PROPERTIES
     ARCHITECTURES "arm64"
     MACOSX_BUNDLE TRUE
@@ -46,7 +46,7 @@ elseif(BUILD_FOR_visionOS)
     XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
   )
 elseif(BUILD_FOR_IOS)
-  message("subdir build for IOS")
+  message(STATUS "subdir build for IOS")
   set_target_properties(RtreeRepo PROPERTIES
     ARCHITECTURES "arm64"
     XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "12.0"
