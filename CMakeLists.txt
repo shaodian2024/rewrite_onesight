@@ -58,6 +58,17 @@ ELSEIF(BUILD_FOR_APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "1.0")  # visionOS版本
     # visionOS只支持arm64架构
     set(CMAKE_OSX_ARCHITECTURES "arm64")
+      # 添加Bundle Identifier设置
+    set_target_properties(${BIN} PROPERTIES
+      MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourcompany.${BIN}"
+      MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+      MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+    )
+    # 确保生成的是.app包
+    set_target_properties(${BIN} PROPERTIES
+      XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.yourcompany.${BIN}"
+    )
   ELSEIF(BUILD_FOR_IOS)
     set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.0")  # 或者更高版本
