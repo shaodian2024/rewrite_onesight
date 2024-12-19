@@ -27,29 +27,6 @@ IF(BUILD_FOR_IOS)
 ENDIF()
 set(BIN "easyRTree")
 add_executable(${BIN} "test.cpp")
-IF(BUILD_FOR_WINDOWS)
-  message(STATUS "BUILD FOR WINDOWS")
-  add_definitions(-DBENTLEY_WIN32=1)
-  add_compile_definitions(BENTLEY_WIN32)
-  add_definitions(-DBENTLEY_WINRT)
-  add_compile_definitions(BENTLEY_WINRT)
-  add_definitions(-D_WINDOWS_=1)
-ELSEIF(BUILD_FOR_APPLE)
-  message(STATUS "BUILD FOR APPLE")
-  add_definitions(-D__APPLE__)
-  add_compile_definitions(__APPLE__)
-  # 设置CMake工具链文件
-  # set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../ios-cmake/ios.toolchain.cmake)
-  IF(BUILD_FOR_macOS)
-    # 选择目标平台
-    set(CMAKE_SYSTEM_NAME "Darwin")  # 对于macOS使用Darwin
-    message(STATUS "BUILD FOR macOS")
-    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
-    # 设置最低部署版本
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")  # macOS版本
-    # 设置支持的架构
-    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")  # 支持Apple Silicon和Intel处理器
-  ELSEIF(BUILD_FOR_visionOS)
     # 设置visionOS作为目标平台
     set(CMAKE_SYSTEM_NAME "visionOS")
     message(STATUS "BUILD FOR visionOS")
@@ -76,63 +53,112 @@ ELSEIF(BUILD_FOR_APPLE)
     set_target_properties(${BIN} PROPERTIES
       XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "onesight.${BIN}"
     )
-  ELSEIF(BUILD_FOR_IOS)
-    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.0")  # 或者更高版本
-    message(STATUS "BUILD FOR iOS")
-    set(PLATFORM "OS64")  # 或使用 OS64COMBINED 以生成包含模拟器和设备的 FAT 库
-    # set(PLATFORM "OS64COMBINED")
-    # set(CMAKE_OSX_ARCHITECTURES "arm64;armv7;x86_64")
-    set(CMAKE_OSX_ARCHITECTURES "arm64")
-  ENDIF()
-ENDIF()
-message("CMAKE_TOOLCHAIN is ${CMAKE_TOOLCHAIN_FILE}")
-IF(BUILD_FOR_ANDROID)
-  message(STATUS "BUILD FOR ANDROID")
-  add_definitions(-DANDROID)
-  add_compile_definitions(ANDROID)
-  # 设置编译目标为Android
-  set(CMAKE_SYSTEM_NAME Android)
-  set(CMAKE_SYSTEM_VERSION 21) # 设置Android API级别
-  # 链接Android日志库
+# IF(BUILD_FOR_WINDOWS)
+#   message(STATUS "BUILD FOR WINDOWS")
+#   add_definitions(-DBENTLEY_WIN32=1)
+#   add_compile_definitions(BENTLEY_WIN32)
+#   add_definitions(-DBENTLEY_WINRT)
+#   add_compile_definitions(BENTLEY_WINRT)
+#   add_definitions(-D_WINDOWS_=1)
+# ELSEIF(BUILD_FOR_APPLE)
+#   message(STATUS "BUILD FOR APPLE")
+#   add_definitions(-D__APPLE__)
+#   add_compile_definitions(__APPLE__)
+#   # 设置CMake工具链文件
+#   # set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../ios-cmake/ios.toolchain.cmake)
+#   IF(BUILD_FOR_macOS)
+#     # 选择目标平台
+#     set(CMAKE_SYSTEM_NAME "Darwin")  # 对于macOS使用Darwin
+#     message(STATUS "BUILD FOR macOS")
+#     set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
+#     # 设置最低部署版本
+#     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")  # macOS版本
+#     # 设置支持的架构
+#     set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")  # 支持Apple Silicon和Intel处理器
+#   ELSEIF(BUILD_FOR_visionOS)
+#     # 设置visionOS作为目标平台
+#     set(CMAKE_SYSTEM_NAME "visionOS")
+#     message(STATUS "BUILD FOR visionOS")
+# #    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
+#     # 设置最低部署版本
+#     set(CMAKE_OSX_DEPLOYMENT_TARGET "1.0")  # visionOS版本
+#     # visionOS只支持arm64架构
+#     set(CMAKE_OSX_ARCHITECTURES "arm64")
+#     # 添加Bundle Identifier设置
+#     # 设置为MACOSX_BUNDLE类型
+#     set_target_properties(${BIN} PROPERTIES
+#       MACOSX_BUNDLE TRUE
+#       XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "onesight.${BIN}"
+#       MACOSX_BUNDLE_GUI_IDENTIFIER "onesight.${BIN}"
+#       MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+#       MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+#       XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
+#       XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
+#     )
+    
+#     # 确保生成app包
+#     set(CMAKE_MACOSX_BUNDLE TRUE)
+#     # 确保生成的是.app包
+#     set_target_properties(${BIN} PROPERTIES
+#       XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "onesight.${BIN}"
+#     )
+#   ELSEIF(BUILD_FOR_IOS)
+#     set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
+#     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.0")  # 或者更高版本
+#     message(STATUS "BUILD FOR iOS")
+#     set(PLATFORM "OS64")  # 或使用 OS64COMBINED 以生成包含模拟器和设备的 FAT 库
+#     # set(PLATFORM "OS64COMBINED")
+#     # set(CMAKE_OSX_ARCHITECTURES "arm64;armv7;x86_64")
+#     set(CMAKE_OSX_ARCHITECTURES "arm64")
+#   ENDIF()
+# ENDIF()
+# message("CMAKE_TOOLCHAIN is ${CMAKE_TOOLCHAIN_FILE}")
+# IF(BUILD_FOR_ANDROID)
+#   message(STATUS "BUILD FOR ANDROID")
+#   add_definitions(-DANDROID)
+#   add_compile_definitions(ANDROID)
+#   # 设置编译目标为Android
+#   set(CMAKE_SYSTEM_NAME Android)
+#   set(CMAKE_SYSTEM_VERSION 21) # 设置Android API级别
+#   # 链接Android日志库
 
-  set(ICU_INCLUDE_DIR "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include")
-  if(${ANDROID_ABI} STREQUAL "arm64-v8a")
-    set(ICU_LIB_PATH "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/aarch64-linux-android/34")
-  elseif(${ANDROID_ABI} STREQUAL "armeabi-v7a")
-    set(ICU_LIB_PATH "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/34")
-  elseif(${ANDROID_ABI} STREQUAL "x86")
-    set(ICU_LIB_PATH "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/i686-linux-android/34")
-  elseif(${ANDROID_ABI} STREQUAL "x86_64")
-    set(ICU_LIB_PATH "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/34")
-  endif()
-  find_library(icu-lib icu)
-  message(STATUS "icu-lib is ${icu-lib}")
-  add_definitions(-DBETHREAD_USE_PTHREAD=1)
-  add_compile_definitions(BETHREAD_USE_PTHREAD)
-  message(STATUS "BETHREAD_USE_PTHREAD aba")
-  message(STATUS "ANDROID_ABI is ${ANDROID_ABI}")
+#   set(ICU_INCLUDE_DIR "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include")
+#   if(${ANDROID_ABI} STREQUAL "arm64-v8a")
+#     set(ICU_LIB_PATH "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/aarch64-linux-android/34")
+#   elseif(${ANDROID_ABI} STREQUAL "armeabi-v7a")
+#     set(ICU_LIB_PATH "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/34")
+#   elseif(${ANDROID_ABI} STREQUAL "x86")
+#     set(ICU_LIB_PATH "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/i686-linux-android/34")
+#   elseif(${ANDROID_ABI} STREQUAL "x86_64")
+#     set(ICU_LIB_PATH "${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/x86_64-linux-android/34")
+#   endif()
+#   find_library(icu-lib icu)
+#   message(STATUS "icu-lib is ${icu-lib}")
+#   add_definitions(-DBETHREAD_USE_PTHREAD=1)
+#   add_compile_definitions(BETHREAD_USE_PTHREAD)
+#   message(STATUS "BETHREAD_USE_PTHREAD aba")
+#   message(STATUS "ANDROID_ABI is ${ANDROID_ABI}")
 
-#  message(STATUS "ICU_LIB_PATH is ${ICU_LIB_PATH}")
-#  list(APPEND CMAKE_PREFIX_PATH ${ICU_LIB_PATH})
-#  find_package(ICU REQUIRED COMPONENTS uc i18n)
-#  target_link_libraries(nang ICU::uc ICU::i18n)
-#  find_package(ICU REQUIRED COMPONENTS uc i18n PATHS ${ICU_LIB_PATH} NO_DEFAULT_PATH)
-  #find_package(ICU REQUIRED COMPONENTS uc)
-  #target_link_libraries(nang ICU::uc)
-#  find_library(ICU_UC_LIBRARY NAMES icuuc libicuuc PATHS ${ICU_LIB_PATH} NO_DEFAULT_PATH)
-#  find_library(ICU_I18N_LIBRARY NAMES icui18n libicui18n PATHS ${ICU_LIB_PATH} NO_DEFAULT_PATH)
+# #  message(STATUS "ICU_LIB_PATH is ${ICU_LIB_PATH}")
+# #  list(APPEND CMAKE_PREFIX_PATH ${ICU_LIB_PATH})
+# #  find_package(ICU REQUIRED COMPONENTS uc i18n)
+# #  target_link_libraries(nang ICU::uc ICU::i18n)
+# #  find_package(ICU REQUIRED COMPONENTS uc i18n PATHS ${ICU_LIB_PATH} NO_DEFAULT_PATH)
+#   #find_package(ICU REQUIRED COMPONENTS uc)
+#   #target_link_libraries(nang ICU::uc)
+# #  find_library(ICU_UC_LIBRARY NAMES icuuc libicuuc PATHS ${ICU_LIB_PATH} NO_DEFAULT_PATH)
+# #  find_library(ICU_I18N_LIBRARY NAMES icui18n libicui18n PATHS ${ICU_LIB_PATH} NO_DEFAULT_PATH)
 
-#  if(ICU_UC_LIBRARY AND ICU_I18N_LIBRARY)
-#    add_library(ICU::uc UNKNOWN IMPORTED)
-#    set_target_properties(ICU::uc PROPERTIES IMPORTED_LOCATION ${ICU_UC_LIBRARY})
-#    add_library(ICU::i18n UNKNOWN IMPORTED)
-#    set_target_properties(ICU::i18n PROPERTIES IMPORTED_LOCATION ${ICU_I18N_LIBRARY})
-#  else()
-#    message(FATAL_ERROR "ICU libraries not found")
-#  endif()
-  include_directories(${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include)
-ENDIF()
+# #  if(ICU_UC_LIBRARY AND ICU_I18N_LIBRARY)
+# #    add_library(ICU::uc UNKNOWN IMPORTED)
+# #    set_target_properties(ICU::uc PROPERTIES IMPORTED_LOCATION ${ICU_UC_LIBRARY})
+# #    add_library(ICU::i18n UNKNOWN IMPORTED)
+# #    set_target_properties(ICU::i18n PROPERTIES IMPORTED_LOCATION ${ICU_I18N_LIBRARY})
+# #  else()
+# #    message(FATAL_ERROR "ICU libraries not found")
+# #  endif()
+#   include_directories(${ANDROID_NDK}/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include)
+# ENDIF()
 
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
