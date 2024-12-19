@@ -13,12 +13,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 OPTION(BUILD_FOR_WINDOWS "build dll for windows" OFF)
 OPTION(BUILD_FOR_ANDROID "build dll for android" OFF)
 OPTION(BUILD_FOR_APPLE "build dll for apple" ON)
+OPTION(BUILD_FOR_IOS "build for IOS" OFF)
 OPTION(BUILD_FOR_macOS "build for macOS" OFF)
 OPTION(BUILD_FOR_visionOS "BUILD FOR visionOS" OFF)
 IF(BUILD_FOR_macOS)
   set(BUILD_FOR_APPLE ON)
 ENDIF()
 IF(BUILD_FOR_visionOS)
+  set(BUILD_FOR_APPLE ON)
+ENDIF()
+IF(BUILD_FOR_IOS)
   set(BUILD_FOR_APPLE ON)
 ENDIF()
 set(BIN "easyRTree")
@@ -39,6 +43,8 @@ ELSEIF(BUILD_FOR_APPLE)
   IF(BUILD_FOR_macOS)
     # 选择目标平台
     set(CMAKE_SYSTEM_NAME "Darwin")  # 对于macOS使用Darwin
+    message(STATUS "BUILD FOR macOS")
+    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
     # 设置最低部署版本
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")  # macOS版本
     # 设置支持的架构
@@ -46,17 +52,21 @@ ELSEIF(BUILD_FOR_APPLE)
   ELSEIF(BUILD_FOR_visionOS)
     # 设置visionOS作为目标平台
     set(CMAKE_SYSTEM_NAME "visionOS")
+    message(STATUS "BUILD FOR visionOS")
+    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
     # 设置最低部署版本
     set(CMAKE_OSX_DEPLOYMENT_TARGET "1.0")  # visionOS版本
     # visionOS只支持arm64架构
     set(CMAKE_OSX_ARCHITECTURES "arm64")
+  ELSEIF(BUILD_FOR_IOS)
+    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.0")  # 或者更高版本
+    message(STATUS "BUILD FOR iOS")
+    set(PLATFORM "OS64")  # 或使用 OS64COMBINED 以生成包含模拟器和设备的 FAT 库
+    # set(PLATFORM "OS64COMBINED")
+    # set(CMAKE_OSX_ARCHITECTURES "arm64;armv7;x86_64")
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
   ENDIF()
-  set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.0")  # 或者更高版本
-  set(PLATFORM "OS64")  # 或使用 OS64COMBINED 以生成包含模拟器和设备的 FAT 库
-  # set(PLATFORM "OS64COMBINED")
-  # set(CMAKE_OSX_ARCHITECTURES "arm64;armv7;x86_64")
-  set(CMAKE_OSX_ARCHITECTURES "arm64")
 ENDIF()
 
 IF(BUILD_FOR_ANDROID)
