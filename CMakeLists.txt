@@ -44,11 +44,15 @@ ELSEIF(BUILD_FOR_APPLE)
     # 选择目标平台
     set(CMAKE_SYSTEM_NAME "Darwin")  # 对于macOS使用Darwin
     message(STATUS "BUILD FOR macOS")
-    set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
+    # set(CMAKE_TOOLCHAIN_FILE /Users/onesight/shenghang/ios-cmake/ios.toolchain.cmake )
     # 设置最低部署版本
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")  # macOS版本
     # 设置支持的架构
     set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")  # 支持Apple Silicon和Intel处理器
+    set_target_properties(${BIN} PROPERTIES
+      MACOSX_BUNDLE TRUE
+      CMAKE_OSX_ARCHITECTURES "arm64;x86_64"
+    )
   ELSEIF(BUILD_FOR_visionOS)
     # 设置visionOS作为目标平台
     set(CMAKE_SYSTEM_NAME "visionOS")
