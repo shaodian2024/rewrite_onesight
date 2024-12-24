@@ -7,7 +7,11 @@
     #ifdef BUILD_FOR_ANDROID
       #define ONESIGHT_EXPORT JNICALL
     #else
-      #define ONESIGHT_EXPORT 
+      #ifdef BUILD_FOR_macOS
+        #define ONESIGHT_EXPORT __attribute__((visibility("default")))
+      #else
+        #define ONESIGHT_EXPORT 
+      #endif
     #endif
   #endif
 #endif
